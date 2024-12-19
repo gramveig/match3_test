@@ -7,6 +7,8 @@ namespace Match3Test.Game.Settings
     [CreateAssetMenu(menuName = "Match3Test/GameSettings", fileName = "GameSettings")]
     public class GameSettings : ScriptableObject
     {
+        public const int MinMatchingRegularTiles = 3;
+
         [SerializeField] private GemView[] regularGemPrefabs;
         [SerializeField] private GemView[] specialGemPrefabs;
 

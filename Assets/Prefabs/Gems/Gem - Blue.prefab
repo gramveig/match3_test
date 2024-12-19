@@ -145,5 +145,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gemClass: 0
-  gemColor: 0
+  gemColor: 1
   gemSpecialType: 0
