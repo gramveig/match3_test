@@ -48,7 +48,7 @@ public class SC_GameLogic : MonoBehaviour
             {
                 Vector2 _pos = new Vector2(x, y);
                 GameObject _bgTile = Instantiate(SC_GameVariables.Instance.bgTilePrefabs, _pos, Quaternion.identity);
-                _bgTile.transform.SetParent(unityObjects["GemsHolder"].transform);
+                _bgTile.transform.SetParent(unityObjects["GemsContainer"].transform);
                 _bgTile.name = "BG Tile - " + x + ", " + y;
 
                 int _gemToUse = Random.Range(0, SC_GameVariables.Instance.gems.Length);
