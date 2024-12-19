@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Match3Test.Board.Model
 {
@@ -8,5 +9,6 @@ namespace Match3Test.Board.Model
         public GemClass GemClass;
         public GemColor GemColor;
         public GemSpecialType GemSpecialType;
+        public Vector2Int Pos;
     }
 }

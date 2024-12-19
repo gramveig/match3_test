@@ -4,7 +4,8 @@ namespace Match3Test.Board
 {
     public class BoardController : MonoBehaviour
     {
-        [SerializeField] private Vector2Int boardDimensions;
+        [SerializeField] private int boardWidth;
+        [SerializeField] private int boardHeight;
         
         public static BoardController Instance;
 
