@@ -1,3 +1,4 @@
+using Match3Test.Board;
 using Match3Test.Game.Settings;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ namespace Match3Test.Game
         private void Awake()
         {
             Instance = this;
+        }
+
+        private void Start()
+        {
         }
     }
 }
