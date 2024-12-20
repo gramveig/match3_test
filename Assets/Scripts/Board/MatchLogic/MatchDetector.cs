@@ -25,7 +25,9 @@ namespace Match3Test.Board.MatchLogic
             List<Match> matches = null;
             return IsMatchesInLine(lineIndex, ref matches);
         }
-        
+
+        public abstract bool IsMatches(ref List<Match> matches);
+
         protected bool IsMatch(int startX, int startY, int incX, int incY, Gem startGem, out List<Gem> matchingGems)
         {
             matchingGems = null;

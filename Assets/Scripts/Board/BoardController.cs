@@ -101,7 +101,6 @@ namespace Match3Test.Board
             {
                 Debug.Log("Burst complete");
                 OnBurstGemsCompleteEvent?.Invoke();
-                _gameController.GameState = GameState.WaitForMove;
             }
         }
 
@@ -117,7 +116,7 @@ namespace Match3Test.Board
                     TrySetGem(x, y);
         }
 
-        private bool TrySetGem(int x, int y)
+        private void TrySetGem(int x, int y)
         {
             GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
             Gem gem = new Gem(gemPrefab, x, y);
@@ -125,15 +124,13 @@ namespace Match3Test.Board
             if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
             {
                 InstantiateGem(gem);
-                return true;
+                return;
             }
 
-            Board[x, y] = null;
-            bool result = TrySetDifferentGems(x, y);
-            return result;
+            TrySetDifferentGems(x, y);
         }
 
-        private bool TrySetDifferentGems(int x, int y)
+        private void TrySetDifferentGems(int x, int y)
         {
             if (_randomizedGemPrefabs == null)
                 _randomizedGemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
@@ -147,12 +144,15 @@ namespace Match3Test.Board
                 if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
                 {
                     InstantiateGem(gem);
-                    return true;
+                    return;
                 }
             }
 
             Debug.LogError($"Unable to find non-matching gem for position {x}, {y}");
-            return false;
+            GemView randomGemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
+            Gem randomGem = new Gem(randomGemPrefab, x, y);
+            Board[x, y] = randomGem;
+            InstantiateGem(randomGem);
         }
 
         private void InstantiateGem(Gem gem)
@@ -177,6 +177,8 @@ namespace Match3Test.Board
         
         private void MoveGemToNewPos(Gem gem)
         {
+            if (gem == null || gem.GemView == null) return;
+
             gem.GemView.Move(gem.Pos);
             _movingGemsCounter++;
             Board[gem.Pos.x, gem.Pos.y] = gem;
@@ -262,6 +264,9 @@ namespace Match3Test.Board
 
         private void DestroyGem(Gem gem)
         {
+            Gem curGem = Board[gem.Pos.x, gem.Pos.y];
+            if (curGem != gem) return;
+
             _burstingGemsCounter++;
             gem.GemView.Destroy();
             Board[gem.Pos.x, gem.Pos.y] = null;
@@ -304,14 +309,30 @@ namespace Match3Test.Board
                     Gem gem = Board[x, y];
                     if (gem == null)
                     {
-                        bool result = TrySetGem(x, y);
-                        if (!result) continue;
-
+                        TrySetGem(x, y);
                         gem = Board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         MoveGemToNewPos(gem);
                     }
                 }
+            }
+
+            OnMoveGemsCompleteEvent += FindMatchesAfterRefill;
+        }
+
+        private void FindMatchesAfterRefill()
+        {
+            OnMoveGemsCompleteEvent -= FindMatchesAfterRefill;
+
+            _matches.Clear();
+            if (_horizontalMatchDetector.IsMatches(ref _matches) || _verticalMatchDetector.IsMatches(ref _matches))
+            {
+                Debug.Log("Matches count: " + _matches.Count);
+                DestroyMatchingGems(_matches);
+            }
+            else
+            {
+                _gameController.GameState = GameState.WaitForMove;
             }
         }
     }

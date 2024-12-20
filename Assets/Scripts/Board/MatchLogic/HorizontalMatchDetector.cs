@@ -44,5 +44,17 @@ namespace Match3Test.Board.MatchLogic
 
             return isMatches;
         }
+
+        public override bool IsMatches(ref List<Match> matches)
+        {
+            bool isMatches = false;
+            for (int y = 0; y < _boardHeight; y++)
+            {
+                bool isMatchesInRow = IsMatchesInLine(y, ref matches);
+                if (isMatchesInRow) isMatches = true;
+            }
+
+            return isMatches;
+        }
     }
 }
