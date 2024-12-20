@@ -12,7 +12,7 @@ namespace Match3Test.Game.Settings
         public const int MinMatchingRegularTiles = 3;
 
         [SerializeField] private GemView[] regularGemPrefabs;
-        [SerializeField] private GemView[] specialGemPrefabs;
+        [SerializeField] private GemView[] bombPrefabs;
         [SerializeField] private GameObject bgTilePrefab;
         [SerializeField] private float gemSpeed;
         [SerializeField] private float gemDropHeight;
@@ -30,16 +30,6 @@ namespace Match3Test.Game.Settings
                     return regularGemPrefab;
 
             Debug.LogError($"Cannot find regular gem of color {gemColor}");
-            return null;
-        }
-
-        public GemView GetSpecialGemPrefabOfType(GemSpecialType gemSpecialType)
-        {
-            foreach (GemView specialGemPrefab in specialGemPrefabs)
-                if (specialGemPrefab.GemSpecialType == gemSpecialType)
-                    return specialGemPrefab;
-
-            Debug.LogError($"Cannot find special gem of type {gemSpecialType}");
             return null;
         }
 
