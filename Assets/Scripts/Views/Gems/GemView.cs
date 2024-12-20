@@ -22,25 +22,41 @@ namespace Match3Test.Views.Gems
         private Gem _gem;
         private bool _mousePressed;
         private Vector2 _firstTouchPosition;
+        private Vector2 _startPosition;
+        private Vector2 _endPosition;
+        private bool _isMoving;
+        private float _moveSpeed;
+        private float _sqDistThreshold;
 
+        const float DistanceThreshold = 0.01f;
+        
         public void Init(Gem gem)
         {
             _gem = gem;
+        }
+
+        public void Move(Vector2Int endPosition)
+        {
+            _startPosition = transform.position;
+            _endPosition = endPosition;
+            _isMoving = true;
         }
         
         private void Start()
         {
             _gameController = GameController.Instance;
             _boardController = BoardController.Instance;
+            _moveSpeed = _gameController.GameSettings.GemSpeed;
+            _sqDistThreshold = DistanceThreshold * DistanceThreshold;
         }
 
         private void Update()
         {
-            if (_mousePressed && Input.GetMouseButtonUp(0))
-            {
-                _mousePressed = false;
-                if (_gameController.GameState == GameState.WaitForMove) ProcessSwipe();
-            }
+            if (_mousePressed)
+                DetectMouseButtonUp();
+
+            if (_isMoving)
+                MoveGradually();
         }
 
         private void OnMouseDown()
@@ -49,6 +65,15 @@ namespace Match3Test.Views.Gems
             {
                 _firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 _mousePressed = true;
+            }
+        }
+
+        private void DetectMouseButtonUp()
+        {
+            if (_mousePressed && Input.GetMouseButtonUp(0))
+            {
+                _mousePressed = false;
+                if (_gameController.GameState == GameState.WaitForMove) ProcessSwipe();
             }
         }
 
@@ -67,6 +92,20 @@ namespace Match3Test.Views.Gems
             swipeAngle = swipeAngle * 180 / Mathf.PI;
 
             return swipeAngle;
+        }
+
+        private void MoveGradually()
+        {
+            if (!_isMoving) return;
+
+            if ((_endPosition - (Vector2)transform.position).sqrMagnitude >= _sqDistThreshold)
+                transform.position = Vector2.Lerp(transform.position, _endPosition,
+                    _moveSpeed * Time.deltaTime);
+            else
+            {
+                transform.position = _endPosition;
+                _isMoving = false;
+            }
         }
     }
 }

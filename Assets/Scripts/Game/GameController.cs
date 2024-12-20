@@ -19,7 +19,7 @@ namespace Match3Test.Game
 
         public static GameController Instance;
         public GameSettings GameSettings => gameSettings;
-        public GameState GameState { get; private set; }
+        public GameState GameState { get; set; }
 
         private void Awake()
         {

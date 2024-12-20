@@ -21,3 +21,4 @@ MonoBehaviour:
   specialGemPrefabs: []
   bgTilePrefab: {fileID: 2914066502361773997, guid: 3f39182b81f944a4d93213431acb41c3,
     type: 3}
+  gemSpeed: 7

@@ -1,3 +1,4 @@
+using System;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Game;
@@ -48,8 +49,53 @@ namespace Match3Test.Board
         public void ProcessSwipe(Gem gem, Direction swipeDirection)
         {
             Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
+            Gem otherGem = GetOtherGem(gem, swipeDirection);
+            if (otherGem == null) return;
+
+            gem.Pos = GetNewGemPos(gem, swipeDirection);
+            gem.GemView.Move(gem.Pos);
+            otherGem.Pos = GetNewOtherGemPos(gem, swipeDirection);
+            otherGem.GemView.Move(otherGem.Pos);
+            _gameController.GameState = GameState.Moving;
         }
-        
+
+        private Gem GetOtherGem(Gem gem, Direction swipeDirection)
+        {
+            Vector2Int swappedCoord = GetNewGemPos(gem, swipeDirection);
+            int x = swappedCoord.x;
+            int y = swappedCoord.y;
+            if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) return null;
+            
+            Gem otherGem = Board[x, y];
+            return otherGem;
+        }
+
+        private Vector2Int GetNewGemPos(Gem gem, Direction swipeDirection)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            if (swipeDirection == Direction.Up) y++;
+            else if (swipeDirection == Direction.Right) x++;
+            else if (swipeDirection == Direction.Down) y--;
+            else if (swipeDirection == Direction.Left) x--;
+            else throw new Exception("Unknown swipe direction");
+
+            return new Vector2Int(x, y);
+        }
+
+        private Vector2Int GetNewOtherGemPos(Gem gem, Direction swipeDirection)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            if (swipeDirection == Direction.Up) y--;
+            else if (swipeDirection == Direction.Right) x--;
+            else if (swipeDirection == Direction.Down) y++;
+            else if (swipeDirection == Direction.Left) x++;
+            else throw new Exception("Unknown swipe direction");
+
+            return new Vector2Int(x, y);
+        }
+
         //private
         
         private void InitRandomBoard()
