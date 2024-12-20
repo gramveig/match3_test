@@ -18,6 +18,12 @@ namespace Match3Test.Board.MatchLogic
 
         public abstract bool IsMatchesInLine(int lineIndex, ref List<Match> matches);
 
+        public bool IsMatchesInLine(int lineIndex)
+        {
+            List<Match> matches = null;
+            return IsMatchesInLine(lineIndex, ref matches);
+        }
+        
         protected bool IsMatch(int startX, int startY, int incX, int incY, Gem startGem, out List<Gem> matchingGems)
         {
             matchingGems = null;

@@ -29,6 +29,7 @@ namespace Match3Test.Board.MatchLogic
                     if (matches == null) return true;
 
                     isMatches = true;
+                    matchingGems.Add(startGem);
                     Match match = new Match
                     {
                         MatchingGems = matchingGems

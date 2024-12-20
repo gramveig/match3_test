@@ -1,4 +1,5 @@
 using Match3Test.Board.Model;
+using Match3Test.Utility;
 using Match3Test.Views.Gems;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace Match3Test.Game.Settings
         [SerializeField] private GameObject bgTilePrefab;
 
         public GameObject BgTilePrefab => bgTilePrefab;
-        
+
         public GemView GetRegularGemPrefabOfType(GemColor gemColor)
         {
             foreach (GemView regularGemPrefab in regularGemPrefabs)
@@ -36,5 +37,12 @@ namespace Match3Test.Game.Settings
         }
 
         public GemView GetRandomRegularGemPrefab() => regularGemPrefabs[Random.Range(0, regularGemPrefabs.Length)];
+        public GemView[] GetRandomizedGemPrefabs()
+        {
+            GemView[] prefabsCopy = (GemView[])regularGemPrefabs.Clone();
+            ArrayHelper.ShuffleArray(prefabsCopy);
+
+            return prefabsCopy;
+        }
     }
 }

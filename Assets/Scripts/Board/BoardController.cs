@@ -47,6 +47,8 @@ namespace Match3Test.Board
         
         private void InitRandomBoard()
         {
+            Random.seed = 42;
+
             for (int x = 0; x < boardWidth; x++)
                 for (int y = 0; y < boardHeight; y++)
                     TrySetGem(x, y);
@@ -57,7 +59,17 @@ namespace Match3Test.Board
             GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
             Gem gem = new Gem(gemPrefab, x, y);
             Board[x, y] = gem;
-            InstantiateGem(gem);
+
+            if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
+                InstantiateGem(gem);
+            else
+                Board[x, y] = null;
+        }
+
+        private void TrySetDifferentGems(int x, int y)
+        {
+            GemView[] gemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
+            
         }
 
         private void InstantiateGem(Gem gem)
