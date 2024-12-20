@@ -32,7 +32,8 @@ namespace Match3Test.Board.MatchLogic
                     matchingGems.Insert(0, startGem); //have to add the start gem too
                     Match match = new Match
                     {
-                        MatchingGems = matchingGems
+                        MatchingGems = matchingGems,
+                        MatchColor = startGem.GemColor
                     };
 
                     matches.Add(match);

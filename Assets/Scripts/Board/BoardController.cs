@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Game;
-using Match3Test.Game.Settings;
 using Match3Test.Utility;
 using Match3Test.Views.Gems;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Match3Test.Board
 {
@@ -35,6 +35,7 @@ namespace Match3Test.Board
         private Gem _otherGem;
         private Direction _swipeDirection;
         private List<Match> _matches = new List<Match>();
+        private List<Gem> _bombs = new List<Gem>();
         private int _burstingGemsCounter;
 
         private void Awake()
@@ -44,6 +45,7 @@ namespace Match3Test.Board
 
         private void Start()
         {
+            Debug.Log("Seed: " + Random.seed);
             _gameController = GameController.Instance;
             _gameController.GameSettings.IniPrefabPool();
             BoardSaveProvider = new BoardSaveProvider(boardWidth, boardHeight);
@@ -278,9 +280,24 @@ namespace Match3Test.Board
         {
             Debug.Log($"Matches detected: {matches.Count}");
 
+            GetBombs(matches);
             DestroyMatchingGems(matches);
         }
 
+        private void GetBombs(List<Match> matches)
+        {
+            _bombs.Clear();
+            foreach (Match match in matches)
+            {
+                if (match.IsBomb(_swipedGem, _otherGem, out Vector2Int bombPos))
+                {
+                    GemView bombPrefab = _gameController.GameSettings.GetBombPrefabOfColor(match.MatchColor);
+                    Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
+                    _bombs.Add(bomb);
+                }
+            }
+        }
+        
         private void DestroyMatchingGems(List<Match> matches)
         {
             foreach (Match match in matches)
@@ -290,7 +307,7 @@ namespace Match3Test.Board
                     DestroyGem(gem);
             }
 
-            OnBurstGemsCompleteEvent += CompactGems;
+            OnBurstGemsCompleteEvent += SpawnBombs;
         }
 
         private void DestroyGem(Gem gem)
@@ -305,9 +322,21 @@ namespace Match3Test.Board
             _gameController.AddScore(scoreValue);
         }
 
+        private void SpawnBombs()
+        {
+            OnBurstGemsCompleteEvent -= SpawnBombs;
+            
+            foreach (Gem bomb in _bombs)
+            {
+                Board[bomb.Pos.x, bomb.Pos.y] = bomb;
+                InstantiateGem(bomb);
+            }
+
+            CompactGems();
+        }
+
         private void CompactGems()
         {
-            OnBurstGemsCompleteEvent -= CompactGems;
             for (int x = 0; x < boardWidth; x++)
             {
                 int nullCounter = 0;

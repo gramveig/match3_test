@@ -17,6 +17,8 @@ namespace Match3Test.Game.Settings
         [SerializeField] private float gemSpeed;
         [SerializeField] private float gemDropHeight;
         [SerializeField] private float scoreSpeed;
+        [SerializeField] private int commonGemPrefetchCount = 20;
+        [SerializeField] private int bombPrefetchCount = 10;
 
         public GameObject BgTilePrefab => bgTilePrefab;
         public float GemSpeed => gemSpeed;
@@ -53,8 +55,29 @@ namespace Match3Test.Game.Settings
                     continue;
                 }
 
-                pooledPrefab.InitPool(20);
+                pooledPrefab.InitPool(commonGemPrefetchCount);
             }
+            
+            foreach (GemView bombPrefab in bombPrefabs)
+            {
+                IPooledPrefab pooledPrefab = bombPrefab.GetComponent<IPooledPrefab>();
+                if (pooledPrefab == null)
+                {
+                    Debug.LogError($"Prefab {bombPrefab} contains no components implementing IPooledPrefab interface");
+                    continue;
+                }
+
+                pooledPrefab.InitPool(bombPrefetchCount);
+            }
+        }
+
+        public GemView GetBombPrefabOfColor(GemColor gemColor)
+        {
+            foreach (GemView bombPrefab in bombPrefabs)
+                if (bombPrefab.GemColor == gemColor) return bombPrefab;
+
+            Debug.LogError($"Cannot find bomb of color {gemColor}");
+            return null;
         }
     }
 }
