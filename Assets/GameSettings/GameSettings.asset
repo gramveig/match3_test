@@ -31,3 +31,5 @@ MonoBehaviour:
   scoreSpeed: 5
   commonGemPrefetchCount: 20
   bombPrefetchCount: 10
+  bombExplosionDelay: 0.2
+  bombDestructionDelay: 0.5

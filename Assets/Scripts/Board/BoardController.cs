@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
@@ -58,6 +59,8 @@ namespace Match3Test.Board
 
         public Gem GetGem(int x, int y)
         {
+            if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) return null;
+
             return Board[x, y];
         }
 
@@ -281,7 +284,7 @@ namespace Match3Test.Board
             Debug.Log($"Matches detected: {matches.Count}");
 
             GetBombs(matches);
-            DestroyMatchingGems(matches);
+            DestroyMatchingNonBombGems(matches);
         }
 
         private void GetBombs(List<Match> matches)
@@ -298,33 +301,112 @@ namespace Match3Test.Board
             }
         }
         
-        private void DestroyMatchingGems(List<Match> matches)
+        private void DestroyMatchingNonBombGems(List<Match> matches)
         {
+            bool isGemsToDestory = false;
             foreach (Match match in matches)
             {
                 List<Gem> matchingGems = match.MatchingGems;
                 foreach (Gem gem in matchingGems)
-                    DestroyGem(gem);
+                    if (gem.GemClass == GemClass.Common)
+                    {
+                        DestroyGem(gem);
+                        isGemsToDestory = true;
+                    }
             }
 
-            OnBurstGemsCompleteEvent += SpawnBombs;
+            if (isGemsToDestory)
+                OnBurstGemsCompleteEvent += ExplodeBombs;
+            else
+                ExplodeBombs();
         }
 
-        private void DestroyGem(Gem gem)
+        private int DestroyGem(Gem gem, bool notBombs = false)
         {
+            if (gem == null) return 0;
+            if (notBombs == true && gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
+                return 0;
+
             Gem curGem = Board[gem.Pos.x, gem.Pos.y];
-            if (curGem != gem) return;
+            if (curGem != gem) return 0;
 
             _burstingGemsCounter++;
             int scoreValue = gem.GemView.ScoreValue;
             gem.GemView.Destroy();
             Board[gem.Pos.x, gem.Pos.y] = null;
             _gameController.AddScore(scoreValue);
+            return 1;
         }
 
-        private void SpawnBombs()
+        private void ExplodeBombs()
         {
-            OnBurstGemsCompleteEvent -= SpawnBombs;
+            OnBurstGemsCompleteEvent -= ExplodeBombs;
+            StartCoroutine(WaitAndExplodeBombs());
+        }
+
+        private IEnumerator WaitAndExplodeBombs()
+        {
+            yield return new WaitForSeconds(_gameController.GameSettings.BombExplosionDelay);
+
+            bool isBombs = false;
+            foreach (Match match in _matches)
+            {
+                List<Gem> matchingGems = match.MatchingGems;
+                foreach (Gem gem in matchingGems)
+                    if (gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
+                        isBombs = ExplodeBomb(gem);
+            }
+
+            if (isBombs)
+                OnBurstGemsCompleteEvent += DestroyBombs;
+            else
+                SpawnNewBombs();
+        }
+
+        private bool ExplodeBomb(Gem gem)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            int c = 0;
+            c += DestroyGem(GetGem(x, y + 2), true);
+            c += DestroyGem(GetGem(x - 1 , y + 1), true);
+            c += DestroyGem(GetGem(x + 1 , y + 1), true);
+            c += DestroyGem(GetGem(x - 2, y), true);
+            c += DestroyGem(GetGem(x - 1, y), true);
+            c += DestroyGem(GetGem(x + 1, y), true);
+            c += DestroyGem(GetGem(x + 2, y), true);
+            c += DestroyGem(GetGem(x - 1 , y - 1), true);
+            c += DestroyGem(GetGem(x + 1 , y - 1), true);
+            c += DestroyGem(GetGem(x, y - 2), true);
+
+            return c > 0;
+        }
+
+        private void DestroyBombs()
+        {
+            OnBurstGemsCompleteEvent -= DestroyBombs;
+
+            StartCoroutine(WaitAndDestroyBombs());
+        }
+
+        private IEnumerator WaitAndDestroyBombs()
+        {
+            yield return new WaitForSeconds(_gameController.GameSettings.BombDestructionDelay);
+            
+            foreach (Match match in _matches)
+            {
+                List<Gem> matchingGems = match.MatchingGems;
+                foreach (Gem gem in matchingGems)
+                    if (gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
+                        DestroyGem(gem);
+            }
+
+            OnBurstGemsCompleteEvent += SpawnNewBombs;
+        }
+
+        private void SpawnNewBombs()
+        {
+            OnBurstGemsCompleteEvent -= SpawnNewBombs;
             
             foreach (Gem bomb in _bombs)
             {
@@ -390,7 +472,7 @@ namespace Match3Test.Board
             if (_horizontalMatchDetector.IsMatches(ref _matches) || _verticalMatchDetector.IsMatches(ref _matches))
             {
                 Debug.Log("Matches count: " + _matches.Count);
-                DestroyMatchingGems(_matches);
+                DestroyMatchingNonBombGems(_matches);
             }
             else
             {
