@@ -23,3 +23,4 @@ MonoBehaviour:
     type: 3}
   gemSpeed: 7
   gemDropHeight: 1
+  scoreSpeed: 5

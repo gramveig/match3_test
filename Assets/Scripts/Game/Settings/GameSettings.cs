@@ -15,10 +15,12 @@ namespace Match3Test.Game.Settings
         [SerializeField] private GameObject bgTilePrefab;
         [SerializeField] private float gemSpeed;
         [SerializeField] private float gemDropHeight;
+        [SerializeField] private float scoreSpeed;
 
         public GameObject BgTilePrefab => bgTilePrefab;
         public float GemSpeed => gemSpeed;
         public float GemDropHeight => gemDropHeight;
+        public float ScoreSpeed => scoreSpeed;
 
         public GemView GetRegularGemPrefabOfType(GemColor gemColor)
         {
