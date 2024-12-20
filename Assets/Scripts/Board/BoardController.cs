@@ -23,7 +23,7 @@ namespace Match3Test.Board
         public int BoardWidth => boardWidth;
         public int BoardHeight => boardHeight;
 
-        public event Action OnMoveCompleteEvent;
+        public event Action OnMoveGemsCompleteEvent;
         public event Action OnBurstGemsCompleteEvent;
 
         private GameController _gameController;
@@ -71,7 +71,7 @@ namespace Match3Test.Board
             MoveGemToNewPos(gem);
             _otherGem.Pos = GetNewOtherGemPos(_otherGem, swipeDirection);
             MoveGemToNewPos(_otherGem);
-            OnMoveCompleteEvent += CheckForMatches;
+            OnMoveGemsCompleteEvent += CheckForMatches;
             _gameController.GameState = GameState.Moving;
         }
 
@@ -85,7 +85,7 @@ namespace Match3Test.Board
                 _movingGemsCounter = 0;
 
             if (_movingGemsCounter == 0)
-                OnMoveCompleteEvent?.Invoke();
+                OnMoveGemsCompleteEvent?.Invoke();
         }
 
         public void OnBurstGemComplete()
@@ -117,21 +117,23 @@ namespace Match3Test.Board
                     TrySetGem(x, y);
         }
 
-        private void TrySetGem(int x, int y)
+        private bool TrySetGem(int x, int y)
         {
             GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
             Gem gem = new Gem(gemPrefab, x, y);
             Board[x, y] = gem;
             if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
-                InstantiateGem(gem);
-            else
             {
-                Board[x, y] = null;
-                TrySetDifferentGems(x, y);
+                InstantiateGem(gem);
+                return true;
             }
+
+            Board[x, y] = null;
+            bool result = TrySetDifferentGems(x, y);
+            return result;
         }
 
-        private void TrySetDifferentGems(int x, int y)
+        private bool TrySetDifferentGems(int x, int y)
         {
             if (_randomizedGemPrefabs == null)
                 _randomizedGemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
@@ -145,11 +147,12 @@ namespace Match3Test.Board
                 if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
                 {
                     InstantiateGem(gem);
-                    return;
+                    return true;
                 }
             }
 
             Debug.LogError($"Unable to find non-matching gem for position {x}, {y}");
+            return false;
         }
 
         private void InstantiateGem(Gem gem)
@@ -218,7 +221,7 @@ namespace Match3Test.Board
         
         private void CheckForMatches()
         {
-            OnMoveCompleteEvent -= CheckForMatches;
+            OnMoveGemsCompleteEvent -= CheckForMatches;
             _matches.Clear();
             if (AngleHelper.IsHorizontal(_swipeDirection))
             {
@@ -282,6 +285,25 @@ namespace Match3Test.Board
                         Board[x, y] = null;
                         gem.Pos.y -= nullCounter;
                         MoveGemToNewPos(gem);
+                    }
+                }
+            }
+
+            OnMoveGemsCompleteEvent += RefillBoard;
+        }
+
+        private void RefillBoard()
+        {
+            OnMoveGemsCompleteEvent -= RefillBoard;
+            for (int x = 0; x < boardWidth; x++)
+            {
+                for (int y = 0; y < boardHeight; y++)
+                {
+                    Gem gem = Board[x, y];
+                    if (gem == null)
+                    {
+                        bool result = TrySetGem(x, y);
+                        if (!result) continue;
                     }
                 }
             }
