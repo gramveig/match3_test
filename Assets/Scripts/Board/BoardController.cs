@@ -295,6 +295,8 @@ namespace Match3Test.Board
         private void RefillBoard()
         {
             OnMoveGemsCompleteEvent -= RefillBoard;
+
+            float dropHeight = _gameController.GameSettings.GemDropHeight;
             for (int x = 0; x < boardWidth; x++)
             {
                 for (int y = 0; y < boardHeight; y++)
@@ -304,6 +306,10 @@ namespace Match3Test.Board
                     {
                         bool result = TrySetGem(x, y);
                         if (!result) continue;
+
+                        gem = Board[x, y];
+                        gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
+                        MoveGemToNewPos(gem);
                     }
                 }
             }
