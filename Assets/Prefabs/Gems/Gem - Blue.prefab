@@ -127,3 +127,7 @@ MonoBehaviour:
   gemClass: 0
   gemColor: 1
   gemSpecialType: 0
+  burstAnimPrefab: {fileID: 8904178830182364799, guid: d794be08823edd34da1790efd1739074,
+    type: 3}
+  burstAnimLength: 0.2
+  spriteRenderer: {fileID: 7667143225876670884}

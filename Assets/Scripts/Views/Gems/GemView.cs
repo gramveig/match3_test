@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Match3Test.Board;
 using Match3Test.Board.Model;
 using Match3Test.Game;
@@ -12,6 +13,9 @@ namespace Match3Test.Views.Gems
         [SerializeField] private GemClass gemClass;
         [SerializeField] private GemColor gemColor;
         [SerializeField] private GemSpecialType gemSpecialType;
+        [SerializeField] private GameObject burstAnimPrefab;
+        [SerializeField] private float burstAnimLength;
+        [SerializeField] private SpriteRenderer spriteRenderer;
 
         public GemClass GemClass => gemClass;
         public GemColor GemColor => gemColor;
@@ -41,7 +45,12 @@ namespace Match3Test.Views.Gems
             _endPosition = endPosition;
             _isMoving = true;
         }
-        
+
+        public void Destroy()
+        {
+            StartCoroutine(DestroyWithAnimation());
+        }
+
         private void Start()
         {
             _gameController = GameController.Instance;
@@ -107,6 +116,15 @@ namespace Match3Test.Views.Gems
                 _isMoving = false;
                 _boardController.OnMoveGemComplete();
             }
+        }
+
+        private IEnumerator DestroyWithAnimation()
+        {
+            spriteRenderer.enabled = false;
+            Instantiate(burstAnimPrefab, transform.position, Quaternion.identity, transform);
+            yield return new WaitForSeconds(burstAnimLength);
+            _boardController.OnBurstGemComplete();
+            Destroy(gameObject);
         }
     }
 }

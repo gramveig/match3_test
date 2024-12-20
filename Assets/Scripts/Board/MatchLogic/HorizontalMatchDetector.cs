@@ -29,7 +29,7 @@ namespace Match3Test.Board.MatchLogic
                     if (matches == null) return true;
 
                     isMatches = true;
-                    matchingGems.Insert(0, startGem);
+                    matchingGems.Insert(0, startGem); //have to add the start gem too
                     Match match = new Match
                     {
                         MatchingGems = matchingGems

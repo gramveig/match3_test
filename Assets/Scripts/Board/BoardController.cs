@@ -23,7 +23,8 @@ namespace Match3Test.Board
         public int BoardWidth => boardWidth;
         public int BoardHeight => boardHeight;
 
-        public event Action OnMoveComplete;
+        public event Action OnMoveCompleteEvent;
+        public event Action OnBurstGemsCompleteEvent;
 
         private GameController _gameController;
         private HorizontalMatchDetector _horizontalMatchDetector;
@@ -34,6 +35,7 @@ namespace Match3Test.Board
         private Gem _otherGem;
         private Direction _swipeDirection;
         private List<Match> _matches = new List<Match>();
+        private int _burstingGemsCounter;
 
         private void Awake()
         {
@@ -69,14 +71,12 @@ namespace Match3Test.Board
             MoveGemToNewPos(gem);
             _otherGem.Pos = GetNewOtherGemPos(_otherGem, swipeDirection);
             MoveGemToNewPos(_otherGem);
-            OnMoveComplete += CheckForMatches;
+            OnMoveCompleteEvent += CheckForMatches;
+            _gameController.GameState = GameState.Moving;
         }
 
         public void OnMoveGemComplete()
         {
-            if (_gameController.GameState != GameState.Moving)
-                Debug.LogError("GameController state was not set to Moving while moving a gem");
-            
             if (_movingGemsCounter <= 0)
                 Debug.LogError("Moving gem counter is 0 while still moving a gem");
 
@@ -87,8 +87,24 @@ namespace Match3Test.Board
             if (_movingGemsCounter == 0)
             {
                 Debug.Log("Swipe complete");
+                OnMoveCompleteEvent?.Invoke();
+            }
+        }
+
+        public void OnBurstGemComplete()
+        {
+            if (_burstingGemsCounter <= 0)
+                Debug.LogError("Bursting gem counter is 0 while still playing animation");
+
+            _burstingGemsCounter--;
+            if (_burstingGemsCounter < 0)
+                _burstingGemsCounter = 0;
+
+            if (_burstingGemsCounter == 0)
+            {
+                Debug.Log("Burst complete");
+                OnBurstGemsCompleteEvent?.Invoke();
                 _gameController.GameState = GameState.WaitForMove;
-                OnMoveComplete?.Invoke();
             }
         }
 
@@ -162,7 +178,6 @@ namespace Match3Test.Board
         private void MoveGemToNewPos(Gem gem)
         {
             gem.GemView.Move(gem.Pos);
-            _gameController.GameState = GameState.Moving;
             _movingGemsCounter++;
             Board[gem.Pos.x, gem.Pos.y] = gem;
         }
@@ -206,7 +221,7 @@ namespace Match3Test.Board
         
         private void CheckForMatches()
         {
-            OnMoveComplete -= CheckForMatches;
+            OnMoveCompleteEvent -= CheckForMatches;
             _matches.Clear();
             if (AngleHelper.IsHorizontal(_swipeDirection))
             {
@@ -245,7 +260,8 @@ namespace Match3Test.Board
 
         private void DestroyGem(Gem gem)
         {
-            Destroy(gem.GemView.gameObject);
+            _burstingGemsCounter++;
+            gem.GemView.Destroy();
             Board[gem.Pos.x, gem.Pos.y] = null;
         }
     }

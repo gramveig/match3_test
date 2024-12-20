@@ -50,7 +50,7 @@ namespace Match3Test.Board.MatchLogic
                 matchingGems.Add(gem);
             }
 
-            return matchingGems != null && matchingGems.Count >= GameSettings.MinMatchingRegularTiles - 1;
+            return matchingGems != null && matchingGems.Count >= GameSettings.MinMatchingRegularTiles - 1; //-1 because we're counting the start gem
         }
     }
 }
