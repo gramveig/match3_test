@@ -30,8 +30,11 @@ namespace Match3Test.Views.Gems
         private Vector2 _firstTouchPosition;
         private Vector2 _startPosition;
         private Vector2 _endPosition;
+        
         private bool _isMoving;
         private float _moveSpeed;
+        private float _moveTime;
+        private float _moveTimer;
         private float _sqDistThreshold;
         private readonly PrefabPool<GemView> _prefabPool = new();
         private ParticleSystem _particleSystem;
@@ -57,6 +60,9 @@ namespace Match3Test.Views.Gems
         {
             _startPosition = transform.position;
             _endPosition = endPosition;
+            float distance = (_endPosition - _startPosition).magnitude;
+            _moveTime = distance / _moveSpeed;
+            _moveTimer = 0;
             _isMoving = true;
         }
 
@@ -113,6 +119,18 @@ namespace Match3Test.Views.Gems
         {
             if (!_isMoving) return;
 
+            _moveTimer += Time.deltaTime;
+            float r = _moveTimer / _moveTime;
+            if (r < 1f)
+                transform.position = Vector2.Lerp(_startPosition, _endPosition, AnimHelper.EaseInExpo(Mathf.Clamp01(r)));
+            else
+            {
+                transform.position = _endPosition;
+                _isMoving = false;
+                _boardController.OnMoveGemComplete();
+            }
+
+            /*
             if ((_endPosition - (Vector2)transform.position).sqrMagnitude >= _sqDistThreshold)
                 transform.position = Vector2.Lerp(transform.position, _endPosition,
                     _moveSpeed * Time.deltaTime);
@@ -122,6 +140,7 @@ namespace Match3Test.Views.Gems
                 _isMoving = false;
                 _boardController.OnMoveGemComplete();
             }
+            */
         }
 
         private IEnumerator DestroyWithAnimation()
