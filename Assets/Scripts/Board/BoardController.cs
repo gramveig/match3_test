@@ -227,20 +227,46 @@ namespace Match3Test.Board
             _matches.Clear();
             if (AngleHelper.IsHorizontal(_swipeDirection))
             {
-                if (   _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
-                       || _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
-                       || _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches)
+                if (_horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
+                    || _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
+                    || _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches)
                    )
+                {
                     ProcessMatches(_matches);
+                    return;
+                }
             }
             else
             {
-                if (   _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
-                       || _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
-                       || _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches)
+                if (_verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
+                    || _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
+                    || _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches)
                    )
+                {
                     ProcessMatches(_matches);
+                    return;
+                }
             }
+
+            SwipeBack();
+        }
+
+        private void SwipeBack()
+        {
+            Vector2Int swipedGemPos = _swipedGem.Pos;
+            Vector2Int otherGemPos = _otherGem.Pos;
+            _swipedGem.Pos = otherGemPos;
+            _otherGem.Pos = swipedGemPos;
+            MoveGemToNewPos(_swipedGem);
+            MoveGemToNewPos(_otherGem);
+            OnMoveGemsCompleteEvent += OnSwipeBackEnd;
+        }
+
+        private void OnSwipeBackEnd()
+        {
+            OnMoveGemsCompleteEvent -= OnSwipeBackEnd;
+            
+            _gameController.GameState = GameState.WaitForMove;
         }
 
         private void ProcessMatches(List<Match> matches)
