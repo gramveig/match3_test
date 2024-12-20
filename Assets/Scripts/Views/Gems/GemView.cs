@@ -16,10 +16,12 @@ namespace Match3Test.Views.Gems
         [SerializeField] private GameObject burstAnimPrefab;
         [SerializeField] private float burstAnimLength;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private int scoreValue;
 
         public GemClass GemClass => gemClass;
         public GemColor GemColor => gemColor;
         public GemSpecialType GemSpecialType => gemSpecialType;
+        public int ScoreValue => scoreValue;
 
         private GameController _gameController;
         private BoardController _boardController;

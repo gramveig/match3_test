@@ -294,8 +294,10 @@ namespace Match3Test.Board
             if (curGem != gem) return;
 
             _burstingGemsCounter++;
+            int scoreValue = gem.GemView.ScoreValue;
             gem.GemView.Destroy();
             Board[gem.Pos.x, gem.Pos.y] = null;
+            _gameController.AddScore(scoreValue);
         }
 
         private void CompactGems()

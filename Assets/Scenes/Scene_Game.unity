@@ -530,6 +530,7 @@ GameObject:
   - component: {fileID: 786657518}
   - component: {fileID: 786657520}
   - component: {fileID: 786657519}
+  - component: {fileID: 786657521}
   m_Layer: 5
   m_Name: Txt_Score
   m_TagString: UnityObject
@@ -654,6 +655,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 786657517}
   m_CullTransparentMesh: 1
+--- !u!114 &786657521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786657517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 934a587cbc29471f807ca49a8cb895a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scoreField: {fileID: 786657519}
 --- !u!850595691 &980834270
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1184,4 +1198,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boardWidth: 7
   boardHeight: 7
+  gemsContainer: {fileID: 0}
   bgTilesContainer: {fileID: 1852884624}

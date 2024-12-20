@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Match3Test.Board;
 using Match3Test.Game.Settings;
@@ -21,6 +22,10 @@ namespace Match3Test.Game
         public GameSettings GameSettings => gameSettings;
         public GameState GameState { get; set; }
 
+        public event Action<int> OnScoreChanged;
+
+        private int _score;
+
         private void Awake()
         {
             Instance = this;
@@ -30,6 +35,14 @@ namespace Match3Test.Game
         {
             GameState = GameState.Starting;
             StartCoroutine(SetWaitForMoveState());
+        }
+
+        public void AddScore(int score)
+        {
+            if (score <= 0) return;
+
+            _score += score;
+            OnScoreChanged?.Invoke(_score);
         }
 
         private IEnumerator SetWaitForMoveState()
