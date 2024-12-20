@@ -171,8 +171,12 @@ namespace Match3Test.Board
 
         private GemView InstantiateGem(GemView gemPrefab, Vector2Int pos)
         {
-            return Instantiate(gemPrefab, (Vector2)pos, Quaternion.identity,
-                gemsContainer).GetComponent<GemView>();
+            GemView gemView = gemPrefab.GetInstance();
+            Transform t = gemView.transform;
+            t.position = (Vector2)pos;
+            t.parent = gemsContainer;
+
+            return gemView;
         }
         
         private void MoveGemToNewPos(Gem gem)

@@ -1,14 +1,14 @@
-using System;
 using System.Collections;
 using Match3Test.Board;
 using Match3Test.Board.Model;
 using Match3Test.Game;
 using Match3Test.Utility;
 using UnityEngine;
+using Match3Test.Utility.Pooling;
 
 namespace Match3Test.Views.Gems
 {
-    public class GemView : MonoBehaviour
+    public class GemView : MonoBehaviour, IPooledPrefab<GemView>
     {
         [SerializeField] private GemClass gemClass;
         [SerializeField] private GemColor gemColor;
@@ -33,6 +33,7 @@ namespace Match3Test.Views.Gems
         private bool _isMoving;
         private float _moveSpeed;
         private float _sqDistThreshold;
+        private readonly PrefabPool<GemView> _prefabPool = new();
 
         const float DistanceThreshold = 0.01f;
         
@@ -127,6 +128,32 @@ namespace Match3Test.Views.Gems
             yield return new WaitForSeconds(burstAnimLength);
             _boardController.OnBurstGemComplete();
             Destroy(gameObject);
+        }
+
+        public void InitPool(int prefetchCount = 0, Transform container = null)
+        {
+            _prefabPool.InitPool(this);
+        }
+
+        public GemView GetInstance()
+        {
+            return _prefabPool.GetInstance(this);
+        }
+
+        public void ReturnToPool()
+        {
+            if (!gameObject.activeSelf) return;
+            
+            _mousePressed = false;
+            _isMoving = false;
+            StopAllCoroutines();
+
+            _prefabPool.ReturnToPool(this);
+        }
+
+        public void SetPoolReference(ObjectPool<GemView> pool, Transform poolContainer)
+        {
+            _prefabPool.SetPoolReference(pool, poolContainer);
         }
     }
 }
