@@ -11,7 +11,10 @@ namespace Match3Test.Game.Settings
 
         [SerializeField] private GemView[] regularGemPrefabs;
         [SerializeField] private GemView[] specialGemPrefabs;
+        [SerializeField] private GameObject bgTilePrefab;
 
+        public GameObject BgTilePrefab => bgTilePrefab;
+        
         public GemView GetRegularGemPrefabOfType(GemColor gemColor)
         {
             foreach (GemView regularGemPrefab in regularGemPrefabs)
@@ -31,5 +34,7 @@ namespace Match3Test.Game.Settings
             Debug.LogError($"Cannot find special gem of type {gemSpecialType}");
             return null;
         }
+
+        public GemView GetRandomRegularGemPrefab() => regularGemPrefabs[Random.Range(0, regularGemPrefabs.Length)];
     }
 }
