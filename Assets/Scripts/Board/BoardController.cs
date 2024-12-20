@@ -185,12 +185,19 @@ namespace Match3Test.Board
             return gemView;
         }
         
-        private void MoveGemToNewPos(Gem gem)
+        private void MoveGemToNewPos(Gem gem, float delay = 0)
         {
             if (gem == null || gem.GemView == null) return;
 
-            gem.GemView.Move(gem.Pos);
+            StartCoroutine(DelayAndMoveGem(gem, delay));
+        }
+
+        private IEnumerator DelayAndMoveGem(Gem gem, float delay)
+        {
             _movingGemsCounter++;
+            yield return new WaitForSeconds(delay);
+            
+            gem.GemView.Move(gem.Pos);
             Board[gem.Pos.x, gem.Pos.y] = gem;
         }
 
@@ -324,7 +331,7 @@ namespace Match3Test.Board
         private int DestroyGem(Gem gem, bool notBombs = false)
         {
             if (gem == null) return 0;
-            if (notBombs == true && gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
+            if (notBombs && gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
                 return 0;
 
             Gem curGem = Board[gem.Pos.x, gem.Pos.y];
@@ -419,8 +426,10 @@ namespace Match3Test.Board
 
         private void CompactGems()
         {
+            float delayStep = _gameController.GameSettings.DelayStep;
             for (int x = 0; x < boardWidth; x++)
             {
+                int c = 0;
                 int nullCounter = 0;
                 for (int y = 0; y < boardHeight; y++)
                 {
@@ -433,7 +442,8 @@ namespace Match3Test.Board
                     {
                         Board[x, y] = null;
                         gem.Pos.y -= nullCounter;
-                        MoveGemToNewPos(gem);
+                        MoveGemToNewPos(gem, c * delayStep);
+                        c++;
                     }
                 }
             }
@@ -446,8 +456,10 @@ namespace Match3Test.Board
             OnMoveGemsCompleteEvent -= RefillBoard;
 
             float dropHeight = _gameController.GameSettings.GemDropHeight;
+            float delayStep = _gameController.GameSettings.DelayStep;
             for (int x = 0; x < boardWidth; x++)
             {
+                int c = 0;
                 for (int y = 0; y < boardHeight; y++)
                 {
                     Gem gem = Board[x, y];
@@ -456,7 +468,8 @@ namespace Match3Test.Board
                         TrySetGem(x, y);
                         gem = Board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
-                        MoveGemToNewPos(gem);
+                        MoveGemToNewPos(gem, delayStep * c);
+                        c++;
                     }
                 }
             }

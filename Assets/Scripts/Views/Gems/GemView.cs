@@ -122,25 +122,13 @@ namespace Match3Test.Views.Gems
             _moveTimer += Time.deltaTime;
             float r = _moveTimer / _moveTime;
             if (r < 1f)
-                transform.position = Vector2.Lerp(_startPosition, _endPosition, AnimHelper.EaseInExpo(Mathf.Clamp01(r)));
+                transform.position = Vector2.Lerp(_startPosition, _endPosition, AnimHelper.EaseInQuint(Mathf.Clamp01(r)));
             else
             {
                 transform.position = _endPosition;
                 _isMoving = false;
                 _boardController.OnMoveGemComplete();
             }
-
-            /*
-            if ((_endPosition - (Vector2)transform.position).sqrMagnitude >= _sqDistThreshold)
-                transform.position = Vector2.Lerp(transform.position, _endPosition,
-                    _moveSpeed * Time.deltaTime);
-            else
-            {
-                transform.position = _endPosition;
-                _isMoving = false;
-                _boardController.OnMoveGemComplete();
-            }
-            */
         }
 
         private IEnumerator DestroyWithAnimation()

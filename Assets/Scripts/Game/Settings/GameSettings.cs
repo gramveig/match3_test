@@ -21,6 +21,7 @@ namespace Match3Test.Game.Settings
         [SerializeField] private int bombPrefetchCount = 10;
         [SerializeField] private float bombExplosionDelay = 0.2f;
         [SerializeField] private float bombDestructionDelay = 0.2f;
+        [SerializeField] private float delayStep = 0.05f;
 
         public GameObject BgTilePrefab => bgTilePrefab;
         public float GemSpeed => gemSpeed;
@@ -28,6 +29,7 @@ namespace Match3Test.Game.Settings
         public float ScoreSpeed => scoreSpeed;
         public float BombExplosionDelay => bombExplosionDelay;
         public float BombDestructionDelay => bombDestructionDelay;
+        public float DelayStep => delayStep;
 
         public GemView GetRegularGemPrefabOfType(GemColor gemColor)
         {
