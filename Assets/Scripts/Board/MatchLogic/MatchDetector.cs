@@ -34,6 +34,9 @@ namespace Match3Test.Board.MatchLogic
             
             if (startGem == null) return false;
 
+            int tilesCounter = 0;
+            bool isBombMatch = false;
+            GemColor bombMatchColor = GemColor.Any;
             for (int x = startX, y = startY;
                  incX != 0 && (incX > 0 && x < _boardWidth || incX < 0 && x >= 0) ||
                  incY != 0 && (incY > 0 && y < _boardHeight || incY < 0 && y >= 0);
@@ -41,18 +44,41 @@ namespace Match3Test.Board.MatchLogic
             )
             {
                 Gem gem = _boardController.GetGem(x, y);
-                if (   gem == null
-                    || gem.GemColor != startGem.GemColor
+                if (gem == null) break;
+
+                if (   gem.GemClass == GemClass.Special
+                    && gem.GemSpecialType == GemSpecialType.Bomb
                 )
-                    break;
+                {
+                    if (   startGem.GemClass == GemClass.Special
+                        && startGem.GemSpecialType == GemSpecialType.Bomb
+                        && tilesCounter == 0
+                       )
+                    {
+                        isBombMatch = true;
+                        if (matchingGems == null)
+                            matchingGems = new List<Gem>();
+
+                        matchingGems.Add(gem);
+                        tilesCounter++;
+                        bombMatchColor = gem.GemColor;
+                        continue;
+                    }
+
+                    if (isBombMatch && bombMatchColor != gem.GemColor) break;
+                }
+
+                if (gem.GemColor != startGem.GemColor) break;
 
                 if (matchingGems == null)
                     matchingGems = new List<Gem>();
 
                 matchingGems.Add(gem);
+                tilesCounter++;
             }
 
-            return matchingGems != null && matchingGems.Count >= GameSettings.MinMatchingRegularTiles - 1; //-1 because we're counting the start gem
+            return isBombMatch //can match 1 bomb with 1 bomb
+                   || matchingGems != null && matchingGems.Count >= GameSettings.MinMatchingRegularTiles - 1; //-1 because we're counting the start gem
         }
     }
 }

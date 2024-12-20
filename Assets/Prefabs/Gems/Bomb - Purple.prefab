@@ -1,5 +1,98 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2431724803692745915
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 2
+    m_TransformParent: {fileID: 1210587634127288451}
+    m_Modifications:
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865769399618337668, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_Name
+      value: Gem Burst - Purple Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865769399618337668, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157313263962160552, guid: 986dd822e2e6d4b45b2a054259f1241b,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_AddedGameObjects: []
+  m_SourcePrefab: {fileID: 100100000, guid: 986dd822e2e6d4b45b2a054259f1241b, type: 3}
+--- !u!4 &3578116484722827864 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1159462701400028899, guid: 986dd822e2e6d4b45b2a054259f1241b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2431724803692745915}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4061037061838712639 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1865769399618337668, guid: 986dd822e2e6d4b45b2a054259f1241b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2431724803692745915}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8839428272799928612
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39,6 +132,11 @@ PrefabInstance:
       propertyPath: gemColor
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 7218599932006321829, guid: 724e93e48c6cc0b4ab3d44e5ea34f2ec,
+        type: 3}
+      propertyPath: burstAnim
+      value: 
+      objectReference: {fileID: 4061037061838712639}
     - target: {fileID: 7218599932006321829, guid: 724e93e48c6cc0b4ab3d44e5ea34f2ec,
         type: 3}
       propertyPath: gemSpecialType
@@ -127,5 +225,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7667143225876670887, guid: 724e93e48c6cc0b4ab3d44e5ea34f2ec,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3578116484722827864}
   m_SourcePrefab: {fileID: 100100000, guid: 724e93e48c6cc0b4ab3d44e5ea34f2ec, type: 3}
+--- !u!4 &1210587634127288451 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7667143225876670887, guid: 724e93e48c6cc0b4ab3d44e5ea34f2ec,
+    type: 3}
+  m_PrefabInstance: {fileID: 8839428272799928612}
+  m_PrefabAsset: {fileID: 0}

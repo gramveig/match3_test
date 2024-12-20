@@ -29,3 +29,5 @@ MonoBehaviour:
   gemSpeed: 7
   gemDropHeight: 1
   scoreSpeed: 5
+  commonGemPrefetchCount: 20
+  bombPrefetchCount: 10
