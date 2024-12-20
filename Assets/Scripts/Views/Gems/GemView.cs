@@ -13,7 +13,7 @@ namespace Match3Test.Views.Gems
         [SerializeField] private GemClass gemClass;
         [SerializeField] private GemColor gemColor;
         [SerializeField] private GemSpecialType gemSpecialType;
-        [SerializeField] private GameObject burstAnimPrefab;
+        [SerializeField] private GameObject burstAnim;
         [SerializeField] private float burstAnimLength;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private int scoreValue;
@@ -34,6 +34,8 @@ namespace Match3Test.Views.Gems
         private float _moveSpeed;
         private float _sqDistThreshold;
         private readonly PrefabPool<GemView> _prefabPool = new();
+        private ParticleSystem _particleSystem;
+
 
         const float DistanceThreshold = 0.01f;
         
@@ -47,6 +49,8 @@ namespace Match3Test.Views.Gems
             _mousePressed = false;
             _isMoving = false;
             spriteRenderer.enabled = true;
+            _particleSystem = burstAnim.GetComponent<ParticleSystem>();
+            burstAnim.SetActive(false);
         }
 
         public void Move(Vector2Int endPosition)
@@ -123,10 +127,11 @@ namespace Match3Test.Views.Gems
         private IEnumerator DestroyWithAnimation()
         {
             spriteRenderer.enabled = false;
-            GameObject burstAnim = Instantiate(burstAnimPrefab, transform.position, Quaternion.identity, transform);
+            burstAnim.SetActive(true);
+            _particleSystem.Play();
             yield return new WaitForSeconds(burstAnimLength);
             _boardController.OnBurstGemComplete();
-            Destroy(burstAnim);
+            burstAnim.SetActive(false);
             ReturnToPool();
         }
 

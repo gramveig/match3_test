@@ -30,7 +30,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4970325374580667688}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -127,8 +128,100 @@ MonoBehaviour:
   gemClass: 0
   gemColor: 1
   gemSpecialType: 0
-  burstAnimPrefab: {fileID: 8904178830182364799, guid: d794be08823edd34da1790efd1739074,
-    type: 3}
+  burstAnim: {fileID: 5551129459634321487}
   burstAnimLength: 0.2
   spriteRenderer: {fileID: 7667143225876670884}
   scoreValue: 10
+--- !u!1001 &3934014865012100656
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 2
+    m_TransformParent: {fileID: 7667143225876670887}
+    m_Modifications:
+    - target: {fileID: 3964961870680043603, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8904178830182364799, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_Name
+      value: Gem Burst - Blue
+      objectReference: {fileID: 0}
+    - target: {fileID: 8904178830182364799, guid: d794be08823edd34da1790efd1739074,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_AddedGameObjects: []
+  m_SourcePrefab: {fileID: 100100000, guid: d794be08823edd34da1790efd1739074, type: 3}
+--- !u!4 &4970325374580667688 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8242230760222407448, guid: d794be08823edd34da1790efd1739074,
+    type: 3}
+  m_PrefabInstance: {fileID: 3934014865012100656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5551129459634321487 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8904178830182364799, guid: d794be08823edd34da1790efd1739074,
+    type: 3}
+  m_PrefabInstance: {fileID: 3934014865012100656}
+  m_PrefabAsset: {fileID: 0}
