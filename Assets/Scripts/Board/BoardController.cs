@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Game;
@@ -21,11 +22,18 @@ namespace Match3Test.Board
         public BoardSaveModel Board { get; private set; }
         public int BoardWidth => boardWidth;
         public int BoardHeight => boardHeight;
+
+        public event Action OnMoveComplete;
+
         private GameController _gameController;
         private HorizontalMatchDetector _horizontalMatchDetector;
         private VerticalMatchDetector _verticalMatchDetector;
         private GemView[] _randomizedGemPrefabs;
         private int _movingGemsCounter;
+        private Gem _swipedGem;
+        private Gem _otherGem;
+        private Direction _swipeDirection;
+        private List<Match> _matches = new List<Match>();
 
         private void Awake()
         {
@@ -40,6 +48,7 @@ namespace Match3Test.Board
             _horizontalMatchDetector = new HorizontalMatchDetector(this);
             _verticalMatchDetector = new VerticalMatchDetector(this);
             InitRandomBoard();
+            //BoardSaveProvider.Save(Board);
         }
 
         public Gem GetGem(int x, int y)
@@ -49,16 +58,18 @@ namespace Match3Test.Board
 
         public void ProcessSwipe(Gem gem, Direction swipeDirection)
         {
-            Gem otherGem = GetOtherGem(gem, swipeDirection);
-            if (otherGem == null) return;
+            _otherGem = GetOtherGem(gem, swipeDirection);
+            if (_otherGem == null) return;
 
+            _swipedGem = gem;
+            _swipeDirection = swipeDirection;
             Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
 
-            
             gem.Pos = GetNewGemPos(gem, swipeDirection);
             MoveGemToNewPos(gem);
-            otherGem.Pos = GetNewOtherGemPos(otherGem, swipeDirection);
-            MoveGemToNewPos(otherGem);
+            _otherGem.Pos = GetNewOtherGemPos(_otherGem, swipeDirection);
+            MoveGemToNewPos(_otherGem);
+            OnMoveComplete += CheckForMatches;
         }
 
         public void OnMoveGemComplete()
@@ -77,11 +88,12 @@ namespace Match3Test.Board
             {
                 Debug.Log("Swipe complete");
                 _gameController.GameState = GameState.WaitForMove;
+                OnMoveComplete?.Invoke();
             }
         }
 
         //private
-        
+
         private void InitRandomBoard()
         {
             //Random.seed = 42;
@@ -190,6 +202,51 @@ namespace Match3Test.Board
             else throw new Exception("Unknown swipe direction");
 
             return new Vector2Int(x, y);
+        }
+        
+        private void CheckForMatches()
+        {
+            OnMoveComplete -= CheckForMatches;
+            _matches.Clear();
+            if (AngleHelper.IsHorizontal(_swipeDirection))
+            {
+                if (   _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
+                       || _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
+                       || _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches)
+                   )
+                    ProcessMatches(_matches);
+            }
+            else
+            {
+                if (   _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
+                       || _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
+                       || _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches)
+                   )
+                    ProcessMatches(_matches);
+            }
+        }
+
+        private void ProcessMatches(List<Match> matches)
+        {
+            Debug.Log($"Matches detected: {matches.Count}");
+
+            DestroyMatchingGems(matches);
+        }
+
+        private void DestroyMatchingGems(List<Match> matches)
+        {
+            foreach (Match match in matches)
+            {
+                List<Gem> matchingGems = match.MatchingGems;
+                foreach (Gem gem in matchingGems)
+                    DestroyGem(gem);
+            }
+        }
+
+        private void DestroyGem(Gem gem)
+        {
+            Destroy(gem.GemView.gameObject);
+            Board[gem.Pos.x, gem.Pos.y] = null;
         }
     }
 }

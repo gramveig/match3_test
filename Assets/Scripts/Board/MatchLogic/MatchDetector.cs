@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Match3Test.Board.Model;
+using Match3Test.Game;
+using Match3Test.Game.Settings;
 
 namespace Match3Test.Board.MatchLogic
 {
@@ -30,7 +32,6 @@ namespace Match3Test.Board.MatchLogic
             
             if (startGem == null) return false;
 
-            bool isMatch = false;
             for (int x = startX, y = startY;
                  incX != 0 && (incX > 0 && x < _boardWidth || incX < 0 && x >= 0) ||
                  incY != 0 && (incY > 0 && y < _boardHeight || incY < 0 && y >= 0);
@@ -46,11 +47,10 @@ namespace Match3Test.Board.MatchLogic
                 if (matchingGems == null)
                     matchingGems = new List<Gem>();
 
-                isMatch = true;
                 matchingGems.Add(gem);
             }
 
-            return isMatch;
+            return matchingGems != null && matchingGems.Count >= GameSettings.MinMatchingRegularTiles - 1;
         }
     }
 }

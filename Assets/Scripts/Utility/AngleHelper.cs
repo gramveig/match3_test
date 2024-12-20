@@ -14,5 +14,8 @@ namespace Match3Test.Utility
 
             return Direction.Left;
         }
+
+        public static bool IsHorizontal(Direction direction) =>
+            direction == Direction.Left || direction == Direction.Right;
     }
 }
