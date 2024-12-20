@@ -43,7 +43,9 @@ namespace Match3Test.Board
             return Board[x, y];
         }
 
-        public void InitRandomBoard()
+        //private
+        
+        private void InitRandomBoard()
         {
             for (int x = 0; x < boardWidth; x++)
                 for (int y = 0; y < boardHeight; y++)
@@ -52,28 +54,28 @@ namespace Match3Test.Board
 
         private void TrySetGem(int x, int y)
         {
-            InstantiateBgTile(x, y);
             GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
-            GemView gemView = InstantiateGem(gemPrefab, x, y);
-            Board[x, y] = new Gem
-            {
-                GemClass = gemPrefab.GemClass,
-                GemColor = gemPrefab.GemColor,
-                GemSpecialType = gemPrefab.GemSpecialType,
-                Pos = new Vector2Int(x, y),
-                GemView = gemView
-            };
+            Gem gem = new Gem(gemPrefab, x, y);
+            Board[x, y] = gem;
+            InstantiateGem(gem);
         }
 
-        private void InstantiateBgTile(int x, int y)
+        private void InstantiateGem(Gem gem)
         {
-            Instantiate(_gameController.GameSettings.BgTilePrefab, new Vector2(x, y), Quaternion.identity,
+            InstantiateBgTile(gem.Pos);
+            GemView gemView = InstantiateGem(gem.GemPrefab,gem.Pos);
+            gem.GemView = gemView;
+        }
+
+        private void InstantiateBgTile(Vector2Int pos)
+        {
+            Instantiate(_gameController.GameSettings.BgTilePrefab, (Vector2)pos, Quaternion.identity,
                 bgTilesContainer);
         }
 
-        private GemView InstantiateGem(GemView gemPrefab, int x, int y)
+        private GemView InstantiateGem(GemView gemPrefab, Vector2Int pos)
         {
-            return Instantiate(gemPrefab, new Vector2(x, y), Quaternion.identity,
+            return Instantiate(gemPrefab, (Vector2)pos, Quaternion.identity,
                 gemsContainer).GetComponent<GemView>();
         }
     }
