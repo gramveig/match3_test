@@ -85,10 +85,7 @@ namespace Match3Test.Board
                 _movingGemsCounter = 0;
 
             if (_movingGemsCounter == 0)
-            {
-                Debug.Log("Swipe complete");
                 OnMoveCompleteEvent?.Invoke();
-            }
         }
 
         public void OnBurstGemComplete()
@@ -256,6 +253,8 @@ namespace Match3Test.Board
                 foreach (Gem gem in matchingGems)
                     DestroyGem(gem);
             }
+
+            OnBurstGemsCompleteEvent += CompactGems;
         }
 
         private void DestroyGem(Gem gem)
@@ -263,6 +262,29 @@ namespace Match3Test.Board
             _burstingGemsCounter++;
             gem.GemView.Destroy();
             Board[gem.Pos.x, gem.Pos.y] = null;
+        }
+
+        private void CompactGems()
+        {
+            OnBurstGemsCompleteEvent -= CompactGems;
+            for (int x = 0; x < boardWidth; x++)
+            {
+                int nullCounter = 0;
+                for (int y = 0; y < boardHeight; y++)
+                {
+                    Gem gem = Board[x, y];
+                    if (gem == null)
+                    {
+                        nullCounter++;
+                    }
+                    else
+                    {
+                        Board[x, y] = null;
+                        gem.Pos.y -= nullCounter;
+                        MoveGemToNewPos(gem);
+                    }
+                }
+            }
         }
     }
 }
