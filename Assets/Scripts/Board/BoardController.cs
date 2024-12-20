@@ -45,6 +45,11 @@ namespace Match3Test.Board
             return Board[x, y];
         }
 
+        public void ProcessSwipe(Gem gem, Direction swipeDirection)
+        {
+            Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
+        }
+        
         //private
         
         private void InitRandomBoard()
@@ -96,6 +101,7 @@ namespace Match3Test.Board
         {
             InstantiateBgTile(gem.Pos);
             GemView gemView = InstantiateGem(gem.GemPrefab,gem.Pos);
+            gemView.Init(gem);
             gem.GemView = gemView;
         }
 
