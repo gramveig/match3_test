@@ -2,6 +2,7 @@ using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Game;
 using Match3Test.Game.Settings;
+using Match3Test.Utility;
 using Match3Test.Views.Gems;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace Match3Test.Board
         private GameController _gameController;
         private HorizontalMatchDetector _horizontalMatchDetector;
         private VerticalMatchDetector _verticalMatchDetector;
+        private GemView[] _randomizedGemPrefabs;
 
         private void Awake()
         {
@@ -47,8 +49,9 @@ namespace Match3Test.Board
         
         private void InitRandomBoard()
         {
-            Random.seed = 42;
+            //Random.seed = 42;
 
+            Debug.Log("Generating random board");
             for (int x = 0; x < boardWidth; x++)
                 for (int y = 0; y < boardHeight; y++)
                     TrySetGem(x, y);
@@ -59,17 +62,34 @@ namespace Match3Test.Board
             GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
             Gem gem = new Gem(gemPrefab, x, y);
             Board[x, y] = gem;
-
             if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
                 InstantiateGem(gem);
             else
+            {
                 Board[x, y] = null;
+                TrySetDifferentGems(x, y);
+            }
         }
 
         private void TrySetDifferentGems(int x, int y)
         {
-            GemView[] gemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
-            
+            if (_randomizedGemPrefabs == null)
+                _randomizedGemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
+            else
+                ArrayHelper.ShuffleArray(_randomizedGemPrefabs);
+
+            foreach (GemView gemPrefab in _randomizedGemPrefabs)
+            {
+                Gem gem = new Gem(gemPrefab, x, y);
+                Board[x, y] = gem;
+                if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
+                {
+                    InstantiateGem(gem);
+                    return;
+                }
+            }
+
+            Debug.LogError($"Unable to find non-matching gem for position {x}, {y}");
         }
 
         private void InstantiateGem(Gem gem)
