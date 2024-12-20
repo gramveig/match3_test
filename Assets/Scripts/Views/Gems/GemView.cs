@@ -40,6 +40,13 @@ namespace Match3Test.Views.Gems
         public void Init(Gem gem)
         {
             _gem = gem;
+            _gameController = GameController.Instance;
+            _boardController = BoardController.Instance;
+            _moveSpeed = _gameController.GameSettings.GemSpeed;
+            _sqDistThreshold = DistanceThreshold * DistanceThreshold;
+            _mousePressed = false;
+            _isMoving = false;
+            spriteRenderer.enabled = true;
         }
 
         public void Move(Vector2Int endPosition)
@@ -52,14 +59,6 @@ namespace Match3Test.Views.Gems
         public void Destroy()
         {
             StartCoroutine(DestroyWithAnimation());
-        }
-
-        private void Start()
-        {
-            _gameController = GameController.Instance;
-            _boardController = BoardController.Instance;
-            _moveSpeed = _gameController.GameSettings.GemSpeed;
-            _sqDistThreshold = DistanceThreshold * DistanceThreshold;
         }
 
         private void Update()
@@ -124,15 +123,16 @@ namespace Match3Test.Views.Gems
         private IEnumerator DestroyWithAnimation()
         {
             spriteRenderer.enabled = false;
-            Instantiate(burstAnimPrefab, transform.position, Quaternion.identity, transform);
+            GameObject burstAnim = Instantiate(burstAnimPrefab, transform.position, Quaternion.identity, transform);
             yield return new WaitForSeconds(burstAnimLength);
             _boardController.OnBurstGemComplete();
-            Destroy(gameObject);
+            Destroy(burstAnim);
+            ReturnToPool();
         }
 
         public void InitPool(int prefetchCount = 0, Transform container = null)
         {
-            _prefabPool.InitPool(this);
+            _prefabPool.InitPool(this, prefetchCount, container);
         }
 
         public GemView GetInstance()
@@ -142,12 +142,6 @@ namespace Match3Test.Views.Gems
 
         public void ReturnToPool()
         {
-            if (!gameObject.activeSelf) return;
-            
-            _mousePressed = false;
-            _isMoving = false;
-            StopAllCoroutines();
-
             _prefabPool.ReturnToPool(this);
         }
 

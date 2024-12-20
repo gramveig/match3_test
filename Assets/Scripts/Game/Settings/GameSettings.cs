@@ -1,5 +1,6 @@
 using Match3Test.Board.Model;
 using Match3Test.Utility;
+using Match3Test.Utility.Pooling;
 using Match3Test.Views.Gems;
 using UnityEngine;
 
@@ -49,6 +50,21 @@ namespace Match3Test.Game.Settings
             ArrayHelper.ShuffleArray(prefabsCopy);
 
             return prefabsCopy;
+        }
+
+        public void IniPrefabPool()
+        {
+            foreach (GemView regularGemPrefab in regularGemPrefabs)
+            {
+                IPooledPrefab pooledPrefab = regularGemPrefab.GetComponent<IPooledPrefab>();
+                if (pooledPrefab == null)
+                {
+                    Debug.LogError($"Prefab {regularGemPrefab} contains no components implementing IPooledPrefab interface");
+                    continue;
+                }
+
+                pooledPrefab.InitPool(20);
+            }
         }
     }
 }

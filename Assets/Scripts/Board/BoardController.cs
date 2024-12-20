@@ -45,6 +45,7 @@ namespace Match3Test.Board
         private void Start()
         {
             _gameController = GameController.Instance;
+            _gameController.GameSettings.IniPrefabPool();
             BoardSaveProvider = new BoardSaveProvider(boardWidth, boardHeight);
             Board = BoardSaveProvider.Read();
             _horizontalMatchDetector = new HorizontalMatchDetector(this);
@@ -148,7 +149,7 @@ namespace Match3Test.Board
                 }
             }
 
-            Debug.LogError($"Unable to find non-matching gem for position {x}, {y}");
+            Debug.LogWarning($"Unable to find non-matching gem for position {x}, {y}");
             GemView randomGemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
             Gem randomGem = new Gem(randomGemPrefab, x, y);
             Board[x, y] = randomGem;
@@ -174,7 +175,7 @@ namespace Match3Test.Board
             GemView gemView = gemPrefab.GetInstance();
             Transform t = gemView.transform;
             t.position = (Vector2)pos;
-            t.parent = gemsContainer;
+            t.SetParent(gemsContainer, true);
 
             return gemView;
         }
