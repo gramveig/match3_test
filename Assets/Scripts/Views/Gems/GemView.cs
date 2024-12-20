@@ -105,6 +105,7 @@ namespace Match3Test.Views.Gems
             {
                 transform.position = _endPosition;
                 _isMoving = false;
+                _boardController.OnMoveGemComplete();
             }
         }
     }

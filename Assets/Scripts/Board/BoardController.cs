@@ -25,6 +25,7 @@ namespace Match3Test.Board
         private HorizontalMatchDetector _horizontalMatchDetector;
         private VerticalMatchDetector _verticalMatchDetector;
         private GemView[] _randomizedGemPrefabs;
+        private int _movingGemsCounter;
 
         private void Awake()
         {
@@ -48,52 +49,35 @@ namespace Match3Test.Board
 
         public void ProcessSwipe(Gem gem, Direction swipeDirection)
         {
-            Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
             Gem otherGem = GetOtherGem(gem, swipeDirection);
             if (otherGem == null) return;
 
-            gem.Pos = GetNewGemPos(gem, swipeDirection);
-            gem.GemView.Move(gem.Pos);
-            otherGem.Pos = GetNewOtherGemPos(gem, swipeDirection);
-            otherGem.GemView.Move(otherGem.Pos);
-            _gameController.GameState = GameState.Moving;
-        }
+            Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
 
-        private Gem GetOtherGem(Gem gem, Direction swipeDirection)
-        {
-            Vector2Int swappedCoord = GetNewGemPos(gem, swipeDirection);
-            int x = swappedCoord.x;
-            int y = swappedCoord.y;
-            if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) return null;
             
-            Gem otherGem = Board[x, y];
-            return otherGem;
+            gem.Pos = GetNewGemPos(gem, swipeDirection);
+            MoveGemToNewPos(gem);
+            otherGem.Pos = GetNewOtherGemPos(otherGem, swipeDirection);
+            MoveGemToNewPos(otherGem);
         }
 
-        private Vector2Int GetNewGemPos(Gem gem, Direction swipeDirection)
+        public void OnMoveGemComplete()
         {
-            int x = gem.Pos.x;
-            int y = gem.Pos.y;
-            if (swipeDirection == Direction.Up) y++;
-            else if (swipeDirection == Direction.Right) x++;
-            else if (swipeDirection == Direction.Down) y--;
-            else if (swipeDirection == Direction.Left) x--;
-            else throw new Exception("Unknown swipe direction");
+            if (_gameController.GameState != GameState.Moving)
+                Debug.LogError("GameController state was not set to Moving while moving a gem");
+            
+            if (_movingGemsCounter <= 0)
+                Debug.LogError("Moving gem counter is 0 while still moving a gem");
 
-            return new Vector2Int(x, y);
-        }
+            _movingGemsCounter--;
+            if (_movingGemsCounter < 0)
+                _movingGemsCounter = 0;
 
-        private Vector2Int GetNewOtherGemPos(Gem gem, Direction swipeDirection)
-        {
-            int x = gem.Pos.x;
-            int y = gem.Pos.y;
-            if (swipeDirection == Direction.Up) y--;
-            else if (swipeDirection == Direction.Right) x--;
-            else if (swipeDirection == Direction.Down) y++;
-            else if (swipeDirection == Direction.Left) x++;
-            else throw new Exception("Unknown swipe direction");
-
-            return new Vector2Int(x, y);
+            if (_movingGemsCounter == 0)
+            {
+                Debug.Log("Swipe complete");
+                _gameController.GameState = GameState.WaitForMove;
+            }
         }
 
         //private
@@ -161,6 +145,51 @@ namespace Match3Test.Board
         {
             return Instantiate(gemPrefab, (Vector2)pos, Quaternion.identity,
                 gemsContainer).GetComponent<GemView>();
+        }
+        
+        private void MoveGemToNewPos(Gem gem)
+        {
+            gem.GemView.Move(gem.Pos);
+            _gameController.GameState = GameState.Moving;
+            _movingGemsCounter++;
+            Board[gem.Pos.x, gem.Pos.y] = gem;
+        }
+
+        private Gem GetOtherGem(Gem gem, Direction swipeDirection)
+        {
+            Vector2Int swappedCoord = GetNewGemPos(gem, swipeDirection);
+            int x = swappedCoord.x;
+            int y = swappedCoord.y;
+            if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) return null;
+            
+            Gem otherGem = Board[x, y];
+            return otherGem;
+        }
+
+        private Vector2Int GetNewGemPos(Gem gem, Direction swipeDirection)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            if (swipeDirection == Direction.Up) y++;
+            else if (swipeDirection == Direction.Right) x++;
+            else if (swipeDirection == Direction.Down) y--;
+            else if (swipeDirection == Direction.Left) x--;
+            else throw new Exception("Unknown swipe direction");
+
+            return new Vector2Int(x, y);
+        }
+
+        private Vector2Int GetNewOtherGemPos(Gem gem, Direction swipeDirection)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            if (swipeDirection == Direction.Up) y--;
+            else if (swipeDirection == Direction.Right) x--;
+            else if (swipeDirection == Direction.Down) y++;
+            else if (swipeDirection == Direction.Left) x++;
+            else throw new Exception("Unknown swipe direction");
+
+            return new Vector2Int(x, y);
         }
     }
 }
