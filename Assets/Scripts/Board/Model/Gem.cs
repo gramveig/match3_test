@@ -11,8 +11,8 @@ namespace Match3Test.Board.Model
         public GemColor GemColor;
         public GemSpecialType GemSpecialType;
         public Vector2Int Pos;
-        public GemView GemPrefab; 
-        public GemView GemView;
+        [NonSerialized] public GemView GemPrefab; 
+        [NonSerialized] public GemView GemView;
 
         public Gem(GemView gemPrefab, int x, int y)
         {
