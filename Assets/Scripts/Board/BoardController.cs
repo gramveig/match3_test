@@ -38,6 +38,86 @@ namespace Match3Test.Board
         private List<Match> _matches = new List<Match>();
         private List<Gem> _bombs = new List<Gem>();
         private int _burstingGemsCounter;
+        private MoveSequence _moveSequence;
+
+        private class MoveSequence
+        {
+            private BoardController _boardController;
+            private List<List<Gem>> sequence = new();
+
+            public MoveSequence(BoardController boardController)
+            {
+                _boardController = boardController;
+            }
+
+            private void AddIndex(int idx)
+            {
+                for (int i = 0; i <= idx; i++)
+                    if (sequence.Count - 1 < i)
+                        sequence.Add(new List<Gem>());
+            }
+
+            public void AddToIndex(int idx, Gem gem)
+            {
+                if (idx >= sequence.Count) AddIndex(idx);
+
+                sequence[idx].Add(gem);
+            }
+
+            public void Clear()
+            {
+                sequence.Clear();
+            }
+
+            private int GetMaxNestedListCount()
+            {
+                int maxCount = 0;
+                for (int i = 0; i < sequence.Count; i++)
+                {
+                    int count = sequence[i].Count;
+                    if (count > maxCount) maxCount = count;
+                }
+
+                return maxCount;
+            }
+
+            private int GetGemsCount()
+            {
+                int count = 0;
+                for (int i = 0; i < sequence.Count; i++)
+                {
+                    count += sequence[i].Count;
+                }
+
+                return count;
+            }
+
+            public void RunInSequence()
+            {
+                _boardController.StartCoroutine(SeqEnumerator());
+            }
+
+            private IEnumerator SeqEnumerator()
+            {
+                float delayStep = GameController.Instance.GameSettings.DelayStep;
+                int maxJ = GetMaxNestedListCount();
+                int gemsCount = GetGemsCount();
+                _boardController._movingGemsCounter += gemsCount;
+                for (int j = 0; j < maxJ; j++)
+                {
+                    yield return new WaitForSeconds(delayStep * j);
+
+                    for (int i = 0; i < sequence.Count; i++)
+                    {
+                        var list = sequence[i];
+                        if (j >= list.Count) continue;
+
+                        Gem gem = list[j];
+                        _boardController.MoveGemToNewPos(gem, false);
+                    }
+                }
+            }
+        }
 
         private void Awake()
         {
@@ -46,6 +126,7 @@ namespace Match3Test.Board
 
         private void Start()
         {
+            //Random.seed = 42;
             Debug.Log("Seed: " + Random.seed);
             _gameController = GameController.Instance;
             _gameController.GameSettings.IniPrefabPool();
@@ -53,6 +134,7 @@ namespace Match3Test.Board
             Board = BoardSaveProvider.Read();
             _horizontalMatchDetector = new HorizontalMatchDetector(this);
             _verticalMatchDetector = new VerticalMatchDetector(this);
+            _moveSequence = new MoveSequence(this);
             InitRandomBoard();
             //BoardSaveProvider.Save(Board);
         }
@@ -114,8 +196,6 @@ namespace Match3Test.Board
 
         private void InitRandomBoard()
         {
-            //Random.seed = 42;
-
             Debug.Log("Generating random board");
             for (int x = 0; x < boardWidth; x++)
                 for (int y = 0; y < boardHeight; y++)
@@ -185,18 +265,13 @@ namespace Match3Test.Board
             return gemView;
         }
         
-        private void MoveGemToNewPos(Gem gem, float delay = 0)
+        private void MoveGemToNewPos(Gem gem, bool increaseCounter = true)
         {
             if (gem == null || gem.GemView == null) return;
 
-            StartCoroutine(DelayAndMoveGem(gem, delay));
-        }
+            if (increaseCounter)
+                _movingGemsCounter++;
 
-        private IEnumerator DelayAndMoveGem(Gem gem, float delay)
-        {
-            _movingGemsCounter++;
-            yield return new WaitForSeconds(delay);
-            
             gem.GemView.Move(gem.Pos);
             Board[gem.Pos.x, gem.Pos.y] = gem;
         }
@@ -426,10 +501,9 @@ namespace Match3Test.Board
 
         private void CompactGems()
         {
-            float delayStep = _gameController.GameSettings.DelayStep;
+            _moveSequence.Clear();
             for (int x = 0; x < boardWidth; x++)
             {
-                int c = 0;
                 int nullCounter = 0;
                 for (int y = 0; y < boardHeight; y++)
                 {
@@ -442,12 +516,12 @@ namespace Match3Test.Board
                     {
                         Board[x, y] = null;
                         gem.Pos.y -= nullCounter;
-                        MoveGemToNewPos(gem, c * delayStep);
-                        c++;
+                        _moveSequence.AddToIndex(x, gem);
                     }
                 }
             }
 
+            _moveSequence.RunInSequence();
             OnMoveGemsCompleteEvent += RefillBoard;
         }
 
@@ -455,11 +529,10 @@ namespace Match3Test.Board
         {
             OnMoveGemsCompleteEvent -= RefillBoard;
 
+            _moveSequence.Clear();
             float dropHeight = _gameController.GameSettings.GemDropHeight;
-            float delayStep = _gameController.GameSettings.DelayStep;
             for (int x = 0; x < boardWidth; x++)
             {
-                int c = 0;
                 for (int y = 0; y < boardHeight; y++)
                 {
                     Gem gem = Board[x, y];
@@ -468,12 +541,13 @@ namespace Match3Test.Board
                         TrySetGem(x, y);
                         gem = Board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
-                        MoveGemToNewPos(gem, delayStep * c);
-                        c++;
+                        _moveSequence.AddToIndex(x, gem);
+                        //MoveGemToNewPos(gem);
                     }
                 }
             }
 
+            _moveSequence.RunInSequence();
             OnMoveGemsCompleteEvent += FindMatchesAfterRefill;
         }
 

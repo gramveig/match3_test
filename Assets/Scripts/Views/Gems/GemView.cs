@@ -122,7 +122,7 @@ namespace Match3Test.Views.Gems
             _moveTimer += Time.deltaTime;
             float r = _moveTimer / _moveTime;
             if (r < 1f)
-                transform.position = Vector2.Lerp(_startPosition, _endPosition, AnimHelper.EaseInQuint(Mathf.Clamp01(r)));
+                transform.position = Vector2.Lerp(_startPosition, _endPosition, AnimHelper.EaseInExpo(Mathf.Clamp01(r)));
             else
             {
                 transform.position = _endPosition;
