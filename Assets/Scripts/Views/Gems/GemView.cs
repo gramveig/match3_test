@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using Match3Test.Board;
 using Match3Test.Board.Model;
 using Match3Test.Game;
@@ -69,6 +70,22 @@ namespace Match3Test.Views.Gems
         public void Destroy()
         {
             StartCoroutine(DestroyWithAnimation());
+        }
+
+        public void Shake()
+        {
+            StartCoroutine(ShakeAndWait());
+        }
+
+        private IEnumerator ShakeAndWait()
+        {
+            const float shakeTime = 0.25f;
+
+            _startPosition = transform.position;
+            transform.DOJump(_startPosition, 0.05f, 1, 0.25f);
+            
+            yield return new WaitForSeconds(shakeTime);
+            _boardController.OnShakeGemsComplete();
         }
 
         private void Update()

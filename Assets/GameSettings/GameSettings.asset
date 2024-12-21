@@ -33,3 +33,4 @@ MonoBehaviour:
   bombPrefetchCount: 10
   bombExplosionDelay: 0.2
   bombDestructionDelay: 0.5
+  delayStep: 0.025

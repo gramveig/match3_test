@@ -9,7 +9,7 @@ namespace Match3Test.Board.MatchLogic
         public List<Gem> MatchingGems;
         public GemColor MatchColor;
 
-        public bool IsBomb(Gem swipedGem, Gem otherGem, out Vector2Int pos)
+        public bool IsNewBomb(Gem swipedGem, Gem otherGem, out Vector2Int pos)
         {
             const int MinPiecesForBomb = 4;
 
@@ -30,6 +30,15 @@ namespace Match3Test.Board.MatchLogic
                     return true;
                 }
             }
+
+            return false;
+        }
+
+        public bool IsBombs()
+        {
+            foreach (Gem matchingGem in MatchingGems)
+                if (matchingGem.GemClass == GemClass.Special && matchingGem.GemSpecialType == GemSpecialType.Bomb)
+                    return true;
 
             return false;
         }

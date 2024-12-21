@@ -26,6 +26,7 @@ namespace Match3Test.Board
 
         public event Action OnMoveGemsCompleteEvent;
         public event Action OnBurstGemsCompleteEvent;
+        public event Action OnShakeGemsCompleteEvent;
 
         private GameController _gameController;
         private HorizontalMatchDetector _horizontalMatchDetector;
@@ -39,11 +40,13 @@ namespace Match3Test.Board
         private List<Gem> _bombs = new List<Gem>();
         private int _burstingGemsCounter;
         private MoveSequence _moveSequence;
+        private int _shakedGemsCounter;
 
         private class MoveSequence
         {
             private BoardController _boardController;
             private List<List<Gem>> sequence = new();
+            public int Count;
 
             public MoveSequence(BoardController boardController)
             {
@@ -59,14 +62,18 @@ namespace Match3Test.Board
 
             public void AddToIndex(int idx, Gem gem)
             {
+                if (gem == null) return;
+
                 if (idx >= sequence.Count) AddIndex(idx);
 
                 sequence[idx].Add(gem);
+                Count++;
             }
 
             public void Clear()
             {
                 sequence.Clear();
+                Count = 0;
             }
 
             private int GetMaxNestedListCount()
@@ -92,7 +99,7 @@ namespace Match3Test.Board
                 return count;
             }
 
-            public void RunInSequence()
+            public void MoveInSequence()
             {
                 _boardController.StartCoroutine(SeqEnumerator());
             }
@@ -114,6 +121,32 @@ namespace Match3Test.Board
 
                         Gem gem = list[j];
                         _boardController.MoveGemToNewPos(gem, false);
+                    }
+                }
+            }
+
+            public void ShakeInSequence()
+            {
+                _boardController.StartCoroutine(ShakeSeqEnumerator());
+            }
+
+            private IEnumerator ShakeSeqEnumerator()
+            {
+                float delayStep = GameController.Instance.GameSettings.DelayStep;
+                int maxJ = GetMaxNestedListCount();
+                int gemsCount = GetGemsCount();
+                _boardController._shakedGemsCounter += gemsCount;
+                for (int j = 0; j < maxJ; j++)
+                {
+                    yield return new WaitForSeconds(delayStep * j);
+
+                    for (int i = 0; i < sequence.Count; i++)
+                    {
+                        var list = sequence[i];
+                        if (j >= list.Count) continue;
+
+                        Gem gem = list[j];
+                        gem.GemView.Shake();
                     }
                 }
             }
@@ -192,7 +225,23 @@ namespace Match3Test.Board
             }
         }
 
-        //private
+        public void OnShakeGemsComplete()
+        {
+            if (_shakedGemsCounter <= 0)
+                Debug.LogError("Shake gem counter is 0 while still playing animation");
+
+            _shakedGemsCounter--;
+            if (_shakedGemsCounter < 0)
+                _shakedGemsCounter = 0;
+
+            if (_shakedGemsCounter == 0)
+            {
+                Debug.Log("Shake complete");
+                OnShakeGemsCompleteEvent?.Invoke();
+            }
+        }
+
+    //private
 
         private void InitRandomBoard()
         {
@@ -374,7 +423,7 @@ namespace Match3Test.Board
             _bombs.Clear();
             foreach (Match match in matches)
             {
-                if (match.IsBomb(_swipedGem, _otherGem, out Vector2Int bombPos))
+                if (match.IsNewBomb(_swipedGem, _otherGem, out Vector2Int bombPos))
                 {
                     GemView bombPrefab = _gameController.GameSettings.GetBombPrefabOfColor(match.MatchColor);
                     Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
@@ -405,8 +454,9 @@ namespace Match3Test.Board
 
         private int DestroyGem(Gem gem, bool notBombs = false)
         {
-            if (gem == null) return 0;
-            if (notBombs && gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
+            if (   gem == null
+                || notBombs && gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb
+            )
                 return 0;
 
             Gem curGem = Board[gem.Pos.x, gem.Pos.y];
@@ -423,26 +473,50 @@ namespace Match3Test.Board
         private void ExplodeBombs()
         {
             OnBurstGemsCompleteEvent -= ExplodeBombs;
-            StartCoroutine(WaitAndExplodeBombs());
+
+            Debug.Log("Checking for matched bombs to explode...");
+            if (IsBombs())
+                StartCoroutine(WaitAndExplodeBombs());
+            else
+            {
+                Debug.Log("No matching bombs found.");
+                SpawnNewBombs();
+            }
         }
 
+        private bool IsBombs()
+        {
+            foreach (Match match in _matches)
+                if (match.IsBombs())
+                    return true;
+
+            return false;
+        }
+        
         private IEnumerator WaitAndExplodeBombs()
         {
+            Debug.Log("Waiting to explode bombs...");
             yield return new WaitForSeconds(_gameController.GameSettings.BombExplosionDelay);
 
-            bool isBombs = false;
+            bool isExplodingGems = false;
             foreach (Match match in _matches)
             {
                 List<Gem> matchingGems = match.MatchingGems;
                 foreach (Gem gem in matchingGems)
                     if (gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb)
-                        isBombs = ExplodeBomb(gem);
+                        isExplodingGems = ExplodeBomb(gem);
             }
 
-            if (isBombs)
+            if (isExplodingGems)
+            {
+                Debug.Log("Exploding bombs");
                 OnBurstGemsCompleteEvent += DestroyBombs;
+            }
             else
+            {
+                Debug.Log("No gems to destroy with bomb found");
                 SpawnNewBombs();
+            }
         }
 
         private bool ExplodeBomb(Gem gem)
@@ -473,6 +547,7 @@ namespace Match3Test.Board
 
         private IEnumerator WaitAndDestroyBombs()
         {
+            Debug.Log("Waiting to destroy the exploded bombs...");
             yield return new WaitForSeconds(_gameController.GameSettings.BombDestructionDelay);
             
             foreach (Match match in _matches)
@@ -483,13 +558,15 @@ namespace Match3Test.Board
                         DestroyGem(gem);
             }
 
+            Debug.Log("Destroying the exploded bombs.");
             OnBurstGemsCompleteEvent += SpawnNewBombs;
         }
 
         private void SpawnNewBombs()
         {
             OnBurstGemsCompleteEvent -= SpawnNewBombs;
-            
+
+            Debug.Log("Spawning new bombs if any.");
             foreach (Gem bomb in _bombs)
             {
                 Board[bomb.Pos.x, bomb.Pos.y] = bomb;
@@ -501,6 +578,7 @@ namespace Match3Test.Board
 
         private void CompactGems()
         {
+            Debug.Log("Compacting gems");
             _moveSequence.Clear();
             for (int x = 0; x < boardWidth; x++)
             {
@@ -512,7 +590,7 @@ namespace Match3Test.Board
                     {
                         nullCounter++;
                     }
-                    else
+                    else if (nullCounter > 0)
                     {
                         Board[x, y] = null;
                         gem.Pos.y -= nullCounter;
@@ -521,14 +599,31 @@ namespace Match3Test.Board
                 }
             }
 
-            _moveSequence.RunInSequence();
-            OnMoveGemsCompleteEvent += RefillBoard;
+            if (_moveSequence.Count > 0)
+            {
+                _moveSequence.MoveInSequence();
+                OnMoveGemsCompleteEvent += ShakeAfterCompact;
+            }
+            else
+            {
+                Debug.Log("No gems to compact found");
+                RefillBoard();
+            }
         }
 
+        private void ShakeAfterCompact()
+        {
+            OnMoveGemsCompleteEvent -= ShakeAfterCompact;
+
+            _moveSequence.ShakeInSequence();
+            OnShakeGemsCompleteEvent += RefillBoard;
+        }
+        
         private void RefillBoard()
         {
-            OnMoveGemsCompleteEvent -= RefillBoard;
+            OnShakeGemsCompleteEvent -= RefillBoard;
 
+            Debug.Log("Refilling the board");
             _moveSequence.Clear();
             float dropHeight = _gameController.GameSettings.GemDropHeight;
             for (int x = 0; x < boardWidth; x++)
@@ -542,19 +637,35 @@ namespace Match3Test.Board
                         gem = Board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         _moveSequence.AddToIndex(x, gem);
-                        //MoveGemToNewPos(gem);
                     }
                 }
             }
 
-            _moveSequence.RunInSequence();
-            OnMoveGemsCompleteEvent += FindMatchesAfterRefill;
+            if (_moveSequence.Count > 0)
+            {
+                _moveSequence.MoveInSequence();
+                OnMoveGemsCompleteEvent += ShakeAfterRefill;
+            }
+            else
+            {
+                Debug.LogWarning("No gems for refill found");
+                FindMatchesAfterRefill();
+            }
+        }
+
+        private void ShakeAfterRefill()
+        {
+            OnMoveGemsCompleteEvent -= ShakeAfterRefill;
+
+            _moveSequence.ShakeInSequence();
+            OnShakeGemsCompleteEvent += FindMatchesAfterRefill;
         }
 
         private void FindMatchesAfterRefill()
         {
-            OnMoveGemsCompleteEvent -= FindMatchesAfterRefill;
+            OnShakeGemsCompleteEvent -= FindMatchesAfterRefill;
 
+            Debug.Log("Looking for matches after refill...");
             _matches.Clear();
             if (_horizontalMatchDetector.IsMatches(ref _matches) || _verticalMatchDetector.IsMatches(ref _matches))
             {
@@ -563,6 +674,7 @@ namespace Match3Test.Board
             }
             else
             {
+                Debug.Log("No matches found.");
                 _gameController.GameState = GameState.WaitForMove;
             }
         }
