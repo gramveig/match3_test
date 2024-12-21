@@ -36,20 +36,15 @@ namespace Match3Test.Views.Gems
         private float _moveSpeed;
         private float _moveTime;
         private float _moveTimer;
-        private float _sqDistThreshold;
         private readonly PrefabPool<GemView> _prefabPool = new();
         private ParticleSystem _particleSystem;
 
-
-        const float DistanceThreshold = 0.01f;
-        
         public void Init(Gem gem)
         {
             _gem = gem;
             _gameController = GameController.Instance;
             _boardController = BoardController.Instance;
             _moveSpeed = _gameController.GameSettings.GemSpeed;
-            _sqDistThreshold = DistanceThreshold * DistanceThreshold;
             _mousePressed = false;
             _isMoving = false;
             spriteRenderer.enabled = true;

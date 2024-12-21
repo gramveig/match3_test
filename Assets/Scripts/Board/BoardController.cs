@@ -159,8 +159,6 @@ namespace Match3Test.Board
 
         private void Start()
         {
-            //Random.seed = 42;
-            Debug.Log("Seed: " + Random.seed);
             _gameController = GameController.Instance;
             _gameController.GameSettings.IniPrefabPool();
             BoardSaveProvider = new BoardSaveProvider(boardWidth, boardHeight);
@@ -169,7 +167,6 @@ namespace Match3Test.Board
             _verticalMatchDetector = new VerticalMatchDetector(this);
             _moveSequence = new MoveSequence(this);
             InitRandomBoard();
-            //BoardSaveProvider.Save(Board);
         }
 
         public Gem GetGem(int x, int y)
