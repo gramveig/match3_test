@@ -69,18 +69,12 @@ namespace Match3Test.Views.Gems
 
         public void Shake()
         {
-            StartCoroutine(ShakeAndWait());
-        }
-
-        private IEnumerator ShakeAndWait()
-        {
-            const float shakeTime = 0.25f;
+            float shakeTime = GameController.Instance.GameSettings.ShakeTime;
+            float jumpPower = GameController.Instance.GameSettings.JumpPower;
 
             _startPosition = transform.position;
-            transform.DOJump(_startPosition, 0.05f, 1, 0.25f);
-            
-            yield return new WaitForSeconds(shakeTime);
-            _boardController.OnShakeGemsComplete();
+            transform.DOJump(_startPosition, jumpPower, 1, shakeTime)
+                .onComplete = _boardController.OnShakeGemsComplete;
         }
 
         private void Update()
