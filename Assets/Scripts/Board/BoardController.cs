@@ -398,8 +398,11 @@ namespace Match3Test.Board
 
         private void DestroyGemAroundBomb(Gem gem)
         {
-            if (gem == null) return;
-            
+            if (   gem == null
+                || gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Bomb //only common gems are destroyed, bombs are destroyed after delay
+            )
+                return;
+
             int scoreValue = gem.GemView.ScoreValue;
             _board[gem.Pos.x, gem.Pos.y] = null;
             _boardAnimator.AddGemToAnimation(gem, AnimationType.DestroyGems);

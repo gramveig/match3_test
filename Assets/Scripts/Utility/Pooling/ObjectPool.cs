@@ -6,7 +6,6 @@ namespace Match3Test.Utility.Pooling
     {
         //hide associated game object when in pool
         public bool HideWhenInPool = true;
-
         //destroy associated game object when destroyed
         public bool DestroyWithGameObject = true;
 

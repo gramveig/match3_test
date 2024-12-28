@@ -36,13 +36,13 @@ namespace Match3Test.Views.Gems
         private Vector2 _firstTouchPosition;
         private Vector2 _startPosition;
         private Vector2 _endPosition;
-        
         private bool _isMoving;
         private float _moveSpeed;
         private float _moveTime;
         private float _moveTimer;
         private readonly PrefabPool<GemView> _prefabPool = new();
         private ParticleSystem _particleSystem;
+        private bool _isActive;
 
         [Inject]
         public void Construct(GameController gameController, BoardController boardController, GameSettings gameSettings,
@@ -85,10 +85,17 @@ namespace Match3Test.Views.Gems
             spriteRenderer.enabled = true;
             _particleSystem = burstAnim.GetComponent<ParticleSystem>();
             burstAnim.SetActive(false);
+            _isActive = true;
         }
 
         public void Move(Vector2Int endPosition)
         {
+            if (!_isActive)
+            {
+                Debug.LogError("Attempt to run Move animation on inactive object");
+                return;
+            }
+
             _startPosition = transform.position;
             _endPosition = endPosition;
             float distance = (_endPosition - _startPosition).magnitude;
@@ -99,11 +106,23 @@ namespace Match3Test.Views.Gems
 
         public void Destroy()
         {
+            if (!_isActive)
+            {
+                Debug.LogError("Attempt to run Destroy animation on inactive object");
+                return;
+            }
+
             StartCoroutine(DestroyWithAnimation());
         }
 
         public void Shake()
         {
+            if (!_isActive)
+            {
+                Debug.LogError("Attempt to run Shake animation on inactive object");
+                return;
+            }
+
             float shakeTime = _gameSettings.ShakeTime;
             float jumpPower = _gameSettings.JumpPower;
 
@@ -163,8 +182,8 @@ namespace Match3Test.Views.Gems
             _particleSystem.Play();
             yield return new WaitForSeconds(burstAnimLength);
             burstAnim.SetActive(false);
-            _boardAnimator.OnAnimateGemComplete(_gem, AnimationType.DestroyGems);
             ReturnToPool();
+            _boardAnimator.OnAnimateGemComplete(_gem, AnimationType.DestroyGems);
         }
 
         //pooling
@@ -181,6 +200,7 @@ namespace Match3Test.Views.Gems
 
         public void ReturnToPool()
         {
+            _isActive = false;
             _prefabPool.ReturnToPool(this);
         }
 
