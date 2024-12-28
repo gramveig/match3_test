@@ -1,19 +1,30 @@
+using System;
 using System.IO;
 using System.Text;
 using Match3Test.Board.Model;
+using Match3Test.Game.Settings;
 using Match3Test.Saves;
+using Match3Test.Views.Gems;
 using UnityEngine;
 
 namespace Match3Test.Board
 {
     public class BoardSaveProvider : BaseSaveProvider<BoardSaveModel>
     {
+        private Array _colorEnumValues;
+        private readonly GameSettings _gameSettings;
+
         private const int DefaultBoardWidth = 7;
         private const int DefaultBoardHeight = 7;
         private const string SavePath = "Assets/Models/model.txt";
 
         protected override string Key => "Board";
 
+        public BoardSaveProvider(GameSettings gameSettings)
+        {
+            _gameSettings = gameSettings;
+        }
+        
         protected override BoardSaveModel DefaultSave() => new BoardSaveModel
         {
             Width = DefaultBoardWidth,
@@ -21,15 +32,60 @@ namespace Match3Test.Board
             Board = new Gem[DefaultBoardWidth, DefaultBoardHeight]
         };
 
-        public void SaveAsTextFile()
+        private BoardSaveModel GetSaveModel(int width, int height)
         {
-            File.WriteAllText(SavePath, GetModelAsString());
+            BoardSaveModel model = new BoardSaveModel
+            {
+                Width = width,
+                Height = height,
+                Board = new Gem[width, height]
+            };
+
+            return model;
+        }
+
+        public void SaveAsTextFile(BoardSaveModel board)
+        {
+            File.WriteAllText(SavePath, GetModelAsString(board));
             Debug.Log("File saved at: " + SavePath);
         }
 
-        private string GetModelAsString()
+        public BoardSaveModel GetFromTextFile(TextAsset textFile)
         {
-            var board = Read();
+            string[] lines = textFile.text.Split('\n');
+            int width = lines[0].Length;
+            int height = lines.Length;
+            var board = GetSaveModel(width, height);
+            for (int y = 0; y < board.Height; y++)
+            {
+                string line = lines[y];
+                for (int x = 0; x < board.Width; x++)
+                {
+                    char c = line[x];
+                    if (c == '.') continue;
+
+                    GemColor gemColor = GetGemColorByLetter(c);
+                    Gem gem;
+                    if (char.IsLower(c))
+                    {
+                        GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
+                        gem = new Gem(gemPrefab, x, y);
+                    }
+                    else
+                    {
+                        GemView gemPrefab = _gameSettings.GetBombPrefab(gemColor);
+                        gem = new Gem(gemPrefab, x, y);
+                    }
+
+                    board[x, y] = gem;
+                }
+            }
+
+            return board;
+        }
+
+        private string GetModelAsString(BoardSaveModel board)
+        {
             var strBuilder = new StringBuilder();
             for (int y = 0; y < board.Height; y++)
             {
@@ -47,11 +103,28 @@ namespace Match3Test.Board
                     if (gem.GemClass == GemClass.Common)
                         colorLetter = colorLetter.ToLower();
 
-                    strBuilder.Append(".");
+                    strBuilder.Append(colorLetter);
                 }
             }
 
             return strBuilder.ToString();
         }
+
+        private GemColor GetGemColorByLetter(char letter)
+        {
+            if (_colorEnumValues == null)
+                _colorEnumValues = Enum.GetValues(typeof(GemColor));
+
+            foreach (GemColor gemColor in _colorEnumValues)
+            {
+                if (gemColor == GemColor.Any) continue;
+
+                string l = gemColor.ToString().Substring(0, 1).ToUpper();
+                if (l == letter.ToString().ToUpper()) return gemColor;
+            }
+
+            return GemColor.Any;
+        }
+        
     }
 }

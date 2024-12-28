@@ -35,7 +35,7 @@ namespace Match3Test.Game.Settings
         public float ShakeTime => shakeTime;
         public float JumpPower => jumpPower;
 
-        public GemView GetRegularGemPrefabOfType(GemColor gemColor)
+        public GemView GetRegularGemPrefab(GemColor gemColor)
         {
             foreach (GemView regularGemPrefab in regularGemPrefabs)
                 if (regularGemPrefab.GemColor == gemColor)
@@ -81,7 +81,7 @@ namespace Match3Test.Game.Settings
             }
         }
 
-        public GemView GetBombPrefabOfColor(GemColor gemColor)
+        public GemView GetBombPrefab(GemColor gemColor)
         {
             foreach (GemView bombPrefab in bombPrefabs)
                 if (bombPrefab.GemColor == gemColor) return bombPrefab;

@@ -38,7 +38,7 @@ namespace Match3Test.Board.MatchLogic
             {
                 if (match.IsNewBomb(swipedGem, otherGem, out Vector2Int bombPos))
                 {
-                    GemView bombPrefab = _gameSettings.GetBombPrefabOfColor(match.MatchColor);
+                    GemView bombPrefab = _gameSettings.GetBombPrefab(match.MatchColor);
                     Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
                     NewBombs.Add(bomb);
                 }

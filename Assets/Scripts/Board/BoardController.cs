@@ -7,6 +7,7 @@ using Match3Test.Game;
 using Match3Test.Game.Settings;
 using Match3Test.Utility;
 using Match3Test.Views.Gems;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
@@ -16,6 +17,8 @@ namespace Match3Test.Board
     {
         [SerializeField] private Transform gemsContainer;
         [SerializeField] private Transform bgTilesContainer;
+        [SerializeField] private TextAsset startBoard;
+        [SerializeField] private bool useStartBoard;
 
         private GameController _gameController;
         private GameSettings _gameSettings;
@@ -45,6 +48,7 @@ namespace Match3Test.Board
 
         private void Awake()
         {
+            _boardSaveProvider.Reset();
             _board = _boardSaveProvider.Read();
             _horizontalMatchDetector = new HorizontalMatchDetector(_board);
             _verticalMatchDetector = new VerticalMatchDetector(_board);
@@ -54,7 +58,10 @@ namespace Match3Test.Board
 
         private void Start()
         {
-            InitRandomBoard();
+            if (!useStartBoard || startBoard == null)
+                InitRandomBoard();
+            else
+                InitBoardFromTextFile(startBoard);
         }
 
         //public
@@ -77,6 +84,12 @@ namespace Match3Test.Board
             _swipeDirection = swipeDirection;
         }
 
+        [Button("Save Model To Text File")]
+        public void SaveModelToTextFile()
+        {
+            _boardSaveProvider.SaveAsTextFile(_board);
+        }
+
         //private
 
         private void InitRandomBoard()
@@ -85,6 +98,18 @@ namespace Match3Test.Board
             for (int x = 0; x < _board.Width; x++)
                 for (int y = 0; y < _board.Height; y++)
                     TrySetGem(x, y);
+        }
+        
+        private void InitBoardFromTextFile(TextAsset startBoardAsset)
+        {
+            _board = _boardSaveProvider.GetFromTextFile(startBoardAsset);
+            for (int x = 0; x < _board.Width; x++)
+                for (int y = 0; y < _board.Height; y++)
+                {
+                    Gem gem = _board[x, y];
+                    InstantiateBgTile(gem.Pos);
+                    InstantiateGemView(gem);
+                }
         }
 
         private void TrySetGem(int x, int y)

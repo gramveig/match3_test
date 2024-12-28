@@ -1140,10 +1140,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b6f4a126314d45a38f720b6d64e139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardWidth: 7
-  boardHeight: 7
   gemsContainer: {fileID: 1740955909}
   bgTilesContainer: {fileID: 1852884624}
+  startBoard: {fileID: 4900000, guid: 3d15e65da2b129848b01686f57b64fb6, type: 3}
+  useStartBoard: 1
 --- !u!114 &1879498212
 MonoBehaviour:
   m_ObjectHideFlags: 0
