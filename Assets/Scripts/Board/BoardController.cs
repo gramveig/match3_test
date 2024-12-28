@@ -115,7 +115,10 @@ namespace Match3Test.Board
             Debug.Log("Generating random board");
             for (int x = 0; x < _board.Width; x++)
                 for (int y = 0; y < _board.Height; y++)
+                {
+                    InstantiateBgTile(new Vector2Int(x, y));
                     TrySetGem(x, y);
+                }
         }
         
         private void InitBoardFromTextFile(TextAsset startBoardAsset)
@@ -145,12 +148,20 @@ namespace Match3Test.Board
             _board[x, y] = gem;
             if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
             {
-                InstantiateBgTile(gem.Pos);
                 InstantiateGemView(gem);
                 return;
             }
 
             TrySetDifferentGems(x, y);
+        }
+
+        //debug
+        private void SetGemOfSpecifiedColor(int x, int y, GemColor gemColor)
+        {
+            GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
+            Gem gem = new Gem(gemPrefab, x, y);
+            _board[x, y] = gem;
+            InstantiateGemView(gem);
         }
 
         private void TrySetDifferentGems(int x, int y)
@@ -478,7 +489,8 @@ namespace Match3Test.Board
                     Gem gem = _board[x, y];
                     if (gem == null)
                     {
-                        TrySetGem(x, y);
+                        //TrySetGem(x, y);
+                        SetGemOfSpecifiedColor(x, y, GemColor.Yellow);
                         gem = _board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
