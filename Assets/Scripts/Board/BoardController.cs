@@ -245,10 +245,10 @@ namespace Match3Test.Board
             _matches.Clear();
             if (AngleHelper.IsHorizontal(_swipeDirection))
             {
-                if (   _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
-                    || _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
-                    || _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches)
-                )
+                bool matches1 = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
+                bool matches2 = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
+                bool matches3 = _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches);
+                if (matches1 || matches2 || matches3)
                 {
                     ProcessMatches(_matches);
                     return;
@@ -256,10 +256,10 @@ namespace Match3Test.Board
             }
             else
             {
-                if (   _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches)
-                    || _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches)
-                    || _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches)
-                )
+                bool matches1 = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
+                bool matches2 = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
+                bool matches3 = _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches);
+                if (matches1 || matches2 || matches3)
                 {
                     ProcessMatches(_matches);
                     return;
