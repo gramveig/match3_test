@@ -65,7 +65,7 @@ namespace Match3Test.Board
             var board = GetSaveModel(width, height);
             for (int y = 0; y < board.Height; y++)
             {
-                string line = lines[y];
+                string line = lines[lines.Length - y - 1];
                 for (int x = 0; x < board.Width; x++)
                 {
                     char c = line[x];
