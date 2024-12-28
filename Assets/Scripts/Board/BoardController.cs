@@ -125,9 +125,17 @@ namespace Match3Test.Board
                 for (int y = 0; y < _board.Height; y++)
                 {
                     Gem gem = _board[x, y];
-                    InstantiateBgTile(gem.Pos);
-                    InstantiateGemView(gem);
+                    if (gem != null)
+                    {
+                        InstantiateBgTile(gem.Pos);
+                        InstantiateGemView(gem);
+                    }
+                    else
+                        InstantiateBgTile(new Vector2Int(x, y));
                 }
+
+            _horizontalMatchDetector = new HorizontalMatchDetector(_board);
+            _verticalMatchDetector = new VerticalMatchDetector(_board);
         }
 
         private void TrySetGem(int x, int y)
@@ -332,6 +340,9 @@ namespace Match3Test.Board
 
         private void ExplodeBombs()
         {
+            Debug.Break();
+
+
             Debug.Log("Checking for matched bombs to explode...");
             if (_matches.IsBombs())
                 StartCoroutine(WaitAndExplodeGemsAroundBombs());

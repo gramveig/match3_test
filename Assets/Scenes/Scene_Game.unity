@@ -1142,7 +1142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemsContainer: {fileID: 1740955909}
   bgTilesContainer: {fileID: 1852884624}
-  startBoard: {fileID: 4900000, guid: 3d15e65da2b129848b01686f57b64fb6, type: 3}
+  startBoard: {fileID: 4900000, guid: 577fc674c115ecd40aa1a2c36b1035d7, type: 3}
   useStartBoard: 1
 --- !u!114 &1879498212
 MonoBehaviour:

@@ -28,7 +28,10 @@ namespace Match3Test.Board.MatchLogic
         {
             matchingGems = null;
             
-            if (startGem == null) return false;
+            if (startGem == null
+                || startGem.GemClass == GemClass.Special && startGem.GemSpecialType == GemSpecialType.Empty
+            )
+                return false;
 
             int tilesCounter = 0;
             bool isBombMatch = false;
@@ -42,7 +45,7 @@ namespace Match3Test.Board.MatchLogic
             )
             {
                 Gem gem = _boardModel.GetGem(x, y);
-                if (gem == null) break;
+                if (gem == null || gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Empty) break;
 
                 if (   gem.GemClass == GemClass.Special
                     && gem.GemSpecialType == GemSpecialType.Bomb
@@ -51,7 +54,7 @@ namespace Match3Test.Board.MatchLogic
                     if (   startGem.GemClass == GemClass.Special
                         && startGem.GemSpecialType == GemSpecialType.Bomb
                         && tilesCounter == 0
-                       )
+                    )
                     {
                         isBombMatch = true;
                         if (matchingGems == null)

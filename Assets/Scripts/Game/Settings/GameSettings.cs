@@ -13,6 +13,7 @@ namespace Match3Test.Game.Settings
 
         [SerializeField] private GemView[] regularGemPrefabs;
         [SerializeField] private GemView[] bombPrefabs;
+        [SerializeField] private GemView emptyPrefab;
         [SerializeField] private GameObject bgTilePrefab;
         [SerializeField] private float gemSpeed;
         [SerializeField] private float gemDropHeight;
@@ -89,5 +90,7 @@ namespace Match3Test.Game.Settings
             Debug.LogError($"Cannot find bomb of color {gemColor}");
             return null;
         }
+
+        public GemView EmptyPrefab => emptyPrefab;
     }
 }

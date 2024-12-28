@@ -69,19 +69,25 @@ namespace Match3Test.Board
                 for (int x = 0; x < board.Width; x++)
                 {
                     char c = line[x];
-                    if (c == '.') continue;
-
-                    GemColor gemColor = GetGemColorByLetter(c);
                     Gem gem;
-                    if (char.IsLower(c))
+                    if (c == '.')
                     {
-                        GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
+                        GemView gemPrefab = _gameSettings.EmptyPrefab;
                         gem = new Gem(gemPrefab, x, y);
                     }
                     else
                     {
-                        GemView gemPrefab = _gameSettings.GetBombPrefab(gemColor);
-                        gem = new Gem(gemPrefab, x, y);
+                        GemColor gemColor = GetGemColorByLetter(c);
+                        if (char.IsLower(c))
+                        {
+                            GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
+                            gem = new Gem(gemPrefab, x, y);
+                        }
+                        else
+                        {
+                            GemView gemPrefab = _gameSettings.GetBombPrefab(gemColor);
+                            gem = new Gem(gemPrefab, x, y);
+                        }
                     }
 
                     board[x, y] = gem;
@@ -106,7 +112,7 @@ namespace Match3Test.Board
                 for (int x = 0; x < board.Width; x++)
                 {
                     Gem gem = board.GetGem(x, y);
-                    if (gem == null)
+                    if (gem == null || gem.GemClass == GemClass.Special && gem.GemSpecialType == GemSpecialType.Empty)
                     {
                         strBuilder.Append(".");
                         continue;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Match3Test.Board.Model;
+using UnityEngine;
 
 namespace Match3Test.Board.MatchLogic
 {
@@ -18,7 +19,9 @@ namespace Match3Test.Board.MatchLogic
             for (var x = 0; x < boardWidth;)
             {
                 Gem startGem = _boardModel.GetGem(x, y);
-                if (startGem == null)
+                if (   startGem == null
+                    || startGem.GemClass == GemClass.Special && startGem.GemSpecialType == GemSpecialType.Empty
+                )
                 {
                     x += 1;
                     continue;

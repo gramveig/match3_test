@@ -24,6 +24,8 @@ MonoBehaviour:
   - {fileID: 2199563434581663617, guid: a5f541e58f076b046b65e3de13c8d220, type: 3}
   - {fileID: 2199563434581663617, guid: b2039bb32477cc949afc72cf14141569, type: 3}
   - {fileID: 2199563434581663617, guid: 936355a461cca68409e575f62530c763, type: 3}
+  emptyPrefab: {fileID: 1923203665896672446, guid: d8c41613e502d584da0fa37d19dd3b3c,
+    type: 3}
   bgTilePrefab: {fileID: 2914066502361773997, guid: 3f39182b81f944a4d93213431acb41c3,
     type: 3}
   gemSpeed: 7
@@ -34,3 +36,5 @@ MonoBehaviour:
   bombExplosionDelay: 0.2
   bombDestructionDelay: 0.5
   delayStep: 0.025
+  shakeTime: 0.25
+  jumpPower: 0.05
