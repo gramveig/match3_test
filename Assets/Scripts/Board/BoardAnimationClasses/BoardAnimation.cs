@@ -79,7 +79,7 @@ namespace Match3Test.Board.BoardAnimationClasses
         {
             _callback = callback;
             _seqCount = GetSeqCount();
-            _boardAnimator.StartCoroutine(SeqEnumerator());
+            _boardAnimator.StartCoroutine(AnimationSequenceEnumerator());
         }
 
         public void OnGemAnimationEnd(Gem gem)
@@ -121,7 +121,7 @@ namespace Match3Test.Board.BoardAnimationClasses
                     _gemsSequence.Add(new List<Gem>());
         }
 
-        private IEnumerator SeqEnumerator()
+        private IEnumerator AnimationSequenceEnumerator()
         {
             float delayStep = _gameSettings.DelayStep;
             int maxJ = GetMaxNestedListCount();

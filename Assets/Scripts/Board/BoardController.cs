@@ -33,6 +33,11 @@ namespace Match3Test.Board
         private Gem _otherGem;
         private Direction _swipeDirection;
         private Gem[] _bombs;
+        private readonly BoardStates _boardStates = new BoardStates();
+        private BoardState _state;
+
+        public event Action<Gem, Direction> OnSwipe;
+        public SwipeData SwipeData;
 
         [Inject]
         public void Construct(GameController gameController, GameSettings gameSettings, BoardAnimator boardAnimator,
@@ -64,25 +69,28 @@ namespace Match3Test.Board
                 InitBoardFromTextFile(startBoard);
         }
 
+        private void Update()
+        {
+            _state?.Update();
+        }
+        
         //public
 
-        public void ProcessSwipe(Gem gem, Direction swipeDirection)
+        public void SetState(BoardStateId newStateId)
         {
-            if (gem == null)
-            {
-                Debug.LogError("Gem is null");
-                return;
-            }
-            
-            Gem otherGem = GetOtherGem(gem, swipeDirection);
-            if (otherGem == null) return;
+            if (_state != null && _state.Id == newStateId) return;
 
-            SwipeGems(gem, otherGem, swipeDirection, CheckMatchesAfterSwipe);
-            //save the swipe data to find bombs and in case we need to swipe back
-            _swipedGem = gem;
-            _otherGem = otherGem;
-            _swipeDirection = swipeDirection;
+            _state?.Finish();
+            _state = _boardStates.GetBoardState(newStateId);
+            _state.Start();
         }
+
+        public void CallOnSwipe(Gem gem, Direction swipeDirection)
+        {
+            OnSwipe?.Invoke(gem, swipeDirection);
+        }
+
+        public BoardSaveModel Board => _board;
 
         [Button("Save Model To Text File")]
         public void SaveModelToTextFile()
@@ -214,43 +222,6 @@ namespace Match3Test.Board
                 bgTilesContainer);
         }
 
-        private Gem GetOtherGem(Gem gem, Direction swipeDirection)
-        {
-            Vector2Int swappedCoord = GetNewGemPos(gem, swipeDirection);
-            int x = swappedCoord.x;
-            int y = swappedCoord.y;
-            if (x < 0 || x >= _board.Width || y < 0 || y >= _board.Height) return null;
-            
-            Gem otherGem = _board[x, y];
-            return otherGem;
-        }
-
-        private Vector2Int GetNewGemPos(Gem gem, Direction swipeDirection)
-        {
-            int x = gem.Pos.x;
-            int y = gem.Pos.y;
-            if (swipeDirection == Direction.Up) y++;
-            else if (swipeDirection == Direction.Right) x++;
-            else if (swipeDirection == Direction.Down) y--;
-            else if (swipeDirection == Direction.Left) x--;
-            else throw new Exception("Unknown swipe direction");
-
-            return new Vector2Int(x, y);
-        }
-
-        private Vector2Int GetNewOtherGemPos(Gem gem, Direction swipeDirection)
-        {
-            int x = gem.Pos.x;
-            int y = gem.Pos.y;
-            if (swipeDirection == Direction.Up) y--;
-            else if (swipeDirection == Direction.Right) x--;
-            else if (swipeDirection == Direction.Down) y++;
-            else if (swipeDirection == Direction.Left) x++;
-            else throw new Exception("Unknown swipe direction");
-
-            return new Vector2Int(x, y);
-        }
-
         private void CheckMatchesAfterSwipe()
         {
             bool isMatches = CheckForMatches();
@@ -288,22 +259,6 @@ namespace Match3Test.Board
             return false;
         }
 
-        private void SwipeGems(Gem gem, Gem otherGem, Direction swipeDirection, Action callback)
-        {
-            Debug.Log($"Swiping {gem.GemColor} gem with coordinate ({gem.Pos.x}, {gem.Pos.y}) {swipeDirection}");
-
-            gem.Pos = GetNewGemPos(gem, swipeDirection);
-            _board.SetGemAtNewPos(gem);
-            otherGem.Pos = GetNewOtherGemPos(otherGem, swipeDirection);
-            _board.SetGemAtNewPos(otherGem);
-
-            _boardAnimator.AddGemToAnimation(gem, AnimationType.MoveGems);
-            _boardAnimator.AddGemToAnimation(otherGem, AnimationType.MoveGems);
-            _boardAnimator.AnimateGemsInAnimation(callback, AnimationType.MoveGems);
-
-            _gameController.GameState = GameState.Moving;
-        }
-
         private void SwipeBack(Action callback)
         {
             Vector2Int swipedGemPos = _swipedGem.Pos;
@@ -329,7 +284,7 @@ namespace Match3Test.Board
             if (matches.IsNonBombMatchingGems())
                 DestroyMatchingNonBombGems(matches);
             else
-                ExplodeBombs();
+                ExplodeGemsAroundBombs();
         }
 
         private void DestroyMatchingNonBombGems(Matches matches)
@@ -351,10 +306,10 @@ namespace Match3Test.Board
                     }
             }
 
-            _boardAnimator.AnimateGemsInAnimation(ExplodeBombs, AnimationType.DestroyGems);
+            _boardAnimator.AnimateGemsInAnimation(ExplodeGemsAroundBombs, AnimationType.DestroyGems);
         }
 
-        private void ExplodeBombs()
+        private void ExplodeGemsAroundBombs()
         {
             Debug.Log("Checking for matched bombs to explode...");
             if (_matches.IsBombs())
@@ -487,7 +442,6 @@ namespace Match3Test.Board
             _boardAnimator.AnimateGemsInSequence(RefillBoard, AnimationType.ShakeGems);
         }
 
-        private int _debugCount = 0;
         private void RefillBoard()
         {
             _boardAnimator.StartNewAnimationSequence(AnimationType.MoveGems);
@@ -500,18 +454,13 @@ namespace Match3Test.Board
                     Gem gem = _board[x, y];
                     if (gem == null)
                     {
-                        if (_debugCount == 0)
-                            SetGemOfSpecifiedColor(x, y, GemColor.Yellow);
-                        else
-                            TrySetGem(x, y);
+                        TrySetGem(x, y);
 
                         gem = _board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
                     }
                 }
-
-                _debugCount++;
             }
 
             if (_boardAnimator.IsGemsInAnimation(AnimationType.MoveGems))

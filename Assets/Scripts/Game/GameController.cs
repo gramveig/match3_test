@@ -25,7 +25,6 @@ namespace Match3Test.Game
         private void Start()
         {
             GameState = GameState.Starting;
-            StartCoroutine(SetWaitForMoveState());
         }
 
         public void AddScore(int score)
@@ -34,12 +33,6 @@ namespace Match3Test.Game
 
             _score += score;
             OnScoreChanged?.Invoke(_score);
-        }
-
-        private IEnumerator SetWaitForMoveState()
-        {
-            yield return null;
-            GameState = GameState.WaitForMove;
         }
     }
 }

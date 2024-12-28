@@ -148,7 +148,7 @@ namespace Match3Test.Views.Gems
             float swipeAngle = CalculateAngle(_firstTouchPosition, finalTouchPosition);
             Direction swipeDirection = AngleHelper.AngleToDirection(swipeAngle);
 
-            _boardController.ProcessSwipe(_gem, swipeDirection);
+            _boardController.CallOnSwipe(_gem, swipeDirection);
         }
 
         private float CalculateAngle(Vector2 firstTouchPosition, Vector2 finalTouchPosition)
