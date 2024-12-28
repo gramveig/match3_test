@@ -340,9 +340,6 @@ namespace Match3Test.Board
 
         private void ExplodeBombs()
         {
-            Debug.Break();
-
-
             Debug.Log("Checking for matched bombs to explode...");
             if (_matches.IsBombs())
                 StartCoroutine(WaitAndExplodeGemsAroundBombs());

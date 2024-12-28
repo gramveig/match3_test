@@ -40,7 +40,7 @@ namespace Match3Test.Board.MatchLogic
                 {
                     GemView bombPrefab = _gameSettings.GetBombPrefab(match.MatchColor);
                     Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
-                    NewBombs.Add(bomb);
+                    AddBombIfNotPresent(bomb);
                 }
             }
         }
@@ -72,6 +72,24 @@ namespace Match3Test.Board.MatchLogic
                         _matchingBombs.Add(gem);
 
             return _matchingBombs.ToArray();
+        }
+
+        //private
+
+        private void AddBombIfNotPresent(Gem bomb)
+        {
+            if (IsSameBomb(bomb)) return;
+            
+            NewBombs.Add(bomb);
+        }
+
+        private bool IsSameBomb(Gem bombToAdd)
+        {
+            foreach (Gem bomb in NewBombs)
+                if (bomb.Pos == bombToAdd.Pos)
+                    return true;
+
+            return false;
         }
     }
 }
