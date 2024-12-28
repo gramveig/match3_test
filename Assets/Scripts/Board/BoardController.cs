@@ -228,9 +228,9 @@ namespace Match3Test.Board
             otherGem.Pos = GetNewOtherGemPos(otherGem, swipeDirection);
             _board.SetGemAtNewPos(otherGem);
 
-            _boardAnimator.AddGemToAnimation(gem, GemAnimationType.Move);
-            _boardAnimator.AddGemToAnimation(otherGem, GemAnimationType.Move);
-            _boardAnimator.AnimateGemsInAnimation(callback, GemAnimationType.Move);
+            _boardAnimator.AddGemToAnimation(gem, AnimationType.MoveGems);
+            _boardAnimator.AddGemToAnimation(otherGem, AnimationType.MoveGems);
+            _boardAnimator.AnimateGemsInAnimation(callback, AnimationType.MoveGems);
 
             _gameController.GameState = GameState.Moving;
         }
@@ -244,9 +244,9 @@ namespace Match3Test.Board
             _board.SetGemAtNewPos(_swipedGem);
             _board.SetGemAtNewPos(_otherGem);
 
-            _boardAnimator.AddGemToAnimation(_swipedGem, GemAnimationType.Move);
-            _boardAnimator.AddGemToAnimation(_otherGem, GemAnimationType.Move);
-            _boardAnimator.AnimateGemsInAnimation(callback, GemAnimationType.Move);
+            _boardAnimator.AddGemToAnimation(_swipedGem, AnimationType.MoveGems);
+            _boardAnimator.AddGemToAnimation(_otherGem, AnimationType.MoveGems);
+            _boardAnimator.AnimateGemsInAnimation(callback, AnimationType.MoveGems);
         }
 
         private void OnSwipeBackEnd()
@@ -279,12 +279,12 @@ namespace Match3Test.Board
 
                         int scoreValue = gem.GemView.ScoreValue;
                         _board[gem.Pos.x, gem.Pos.y] = null;
-                        _boardAnimator.AddGemToAnimation(gem, GemAnimationType.Destroy);
+                        _boardAnimator.AddGemToAnimation(gem, AnimationType.DestroyGems);
                         _gameController.AddScore(scoreValue);
                     }
             }
 
-            _boardAnimator.AnimateGemsInAnimation(ExplodeBombs, GemAnimationType.Destroy);
+            _boardAnimator.AnimateGemsInAnimation(ExplodeBombs, AnimationType.DestroyGems);
         }
 
         private void ExplodeBombs()
@@ -308,7 +308,7 @@ namespace Match3Test.Board
             foreach (Gem bomb in _bombs)
                 ExplodeGemsAroundBomb(bomb);
 
-            _boardAnimator.AnimateGemsInAnimation(DestroyBombs, GemAnimationType.Destroy);
+            _boardAnimator.AnimateGemsInAnimation(DestroyBombs, AnimationType.DestroyGems);
         }
 
         private void ExplodeGemsAroundBomb(Gem gem)
@@ -333,7 +333,7 @@ namespace Match3Test.Board
             
             int scoreValue = gem.GemView.ScoreValue;
             _board[gem.Pos.x, gem.Pos.y] = null;
-            _boardAnimator.AddGemToAnimation(gem, GemAnimationType.Destroy);
+            _boardAnimator.AddGemToAnimation(gem, AnimationType.DestroyGems);
             _gameController.AddScore(scoreValue);
         }
         
@@ -351,12 +351,12 @@ namespace Match3Test.Board
             {
                 int scoreValue = bomb.GemView.ScoreValue;
                 _board[bomb.Pos.x, bomb.Pos.y] = null;
-                _boardAnimator.AddGemToAnimation(bomb, GemAnimationType.Destroy);
+                _boardAnimator.AddGemToAnimation(bomb, AnimationType.DestroyGems);
                 _gameController.AddScore(scoreValue);
             }
 
             Debug.Log("Destroying the exploded bombs.");
-            _boardAnimator.AnimateGemsInAnimation(SpawnNewBombs, GemAnimationType.Destroy);
+            _boardAnimator.AnimateGemsInAnimation(SpawnNewBombs, AnimationType.DestroyGems);
         }
 
         private void SpawnNewBombs()
@@ -374,7 +374,7 @@ namespace Match3Test.Board
         private void CompactGems()
         {
             Debug.Log("Compacting gems");
-            _boardAnimator.StartNewAnimationSequence(GemAnimationType.Move);
+            _boardAnimator.StartNewAnimationSequence(AnimationType.MoveGems);
             for (int x = 0; x < _board.Width; x++)
             {
                 int nullCounter = 0;
@@ -391,14 +391,14 @@ namespace Match3Test.Board
                         int newYPos = gem.Pos.y - nullCounter;
                         gem.Pos.y = newYPos;
                         _board[x, newYPos] = gem;
-                        _boardAnimator.AddGemToAnimationSequence(gem, x, GemAnimationType.Move);
+                        _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
                     }
                 }
             }
 
-            if (_boardAnimator.IsGemsInAnimation(GemAnimationType.Move))
+            if (_boardAnimator.IsGemsInAnimation(AnimationType.MoveGems))
             {
-                _boardAnimator.AnimateGemsInSequence(ShakeAfterCompact, GemAnimationType.Move);
+                _boardAnimator.AnimateGemsInSequence(ShakeAfterCompact, AnimationType.MoveGems);
             }
             else
             {
@@ -410,14 +410,14 @@ namespace Match3Test.Board
         private void ShakeAfterCompact()
         {
             Debug.Log("Shaking gems after compacting");
-            _boardAnimator.StartNewAnimationSequence(_boardAnimator.GetAnimationSequence(GemAnimationType.Move),
-                GemAnimationType.Shake);
-            _boardAnimator.AnimateGemsInSequence(RefillBoard, GemAnimationType.Shake);
+            _boardAnimator.StartNewAnimationSequence(_boardAnimator.GetAnimationSequence(AnimationType.MoveGems),
+                AnimationType.ShakeGems);
+            _boardAnimator.AnimateGemsInSequence(RefillBoard, AnimationType.ShakeGems);
         }
         
         private void RefillBoard()
         {
-            _boardAnimator.StartNewAnimationSequence(GemAnimationType.Move);
+            _boardAnimator.StartNewAnimationSequence(AnimationType.MoveGems);
             Debug.Log("Refilling the board");
             float dropHeight = _gameSettings.GemDropHeight;
             for (int x = 0; x < _board.Width; x++)
@@ -430,14 +430,14 @@ namespace Match3Test.Board
                         TrySetGem(x, y);
                         gem = _board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
-                        _boardAnimator.AddGemToAnimationSequence(gem, x, GemAnimationType.Move);
+                        _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
                     }
                 }
             }
 
-            if (_boardAnimator.IsGemsInAnimation(GemAnimationType.Move))
+            if (_boardAnimator.IsGemsInAnimation(AnimationType.MoveGems))
             {
-                _boardAnimator.AnimateGemsInSequence(ShakeAfterRefill, GemAnimationType.Move);
+                _boardAnimator.AnimateGemsInSequence(ShakeAfterRefill, AnimationType.MoveGems);
             }
             else
             {
@@ -449,9 +449,9 @@ namespace Match3Test.Board
         private void ShakeAfterRefill()
         {
             Debug.Log("Shake after refill");
-            _boardAnimator.StartNewAnimationSequence(_boardAnimator.GetAnimationSequence(GemAnimationType.Move),
-                GemAnimationType.Shake);
-            _boardAnimator.AnimateGemsInSequence(FindMatchesAfterRefill, GemAnimationType.Shake);
+            _boardAnimator.StartNewAnimationSequence(_boardAnimator.GetAnimationSequence(AnimationType.MoveGems),
+                AnimationType.ShakeGems);
+            _boardAnimator.AnimateGemsInSequence(FindMatchesAfterRefill, AnimationType.ShakeGems);
         }
 
         private void FindMatchesAfterRefill()

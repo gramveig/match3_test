@@ -109,7 +109,7 @@ namespace Match3Test.Views.Gems
 
             _startPosition = transform.position;
             transform.DOJump(_startPosition, jumpPower, 1, shakeTime)
-                .onComplete = () => { _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Shake); };
+                .onComplete = () => { _boardAnimator.OnAnimateGemComplete(_gem, AnimationType.ShakeGems); };
         }
 
         //private
@@ -152,7 +152,7 @@ namespace Match3Test.Views.Gems
             {
                 transform.position = _endPosition;
                 _isMoving = false;
-                _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Move);
+                _boardAnimator.OnAnimateGemComplete(_gem, AnimationType.MoveGems);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Match3Test.Views.Gems
             _particleSystem.Play();
             yield return new WaitForSeconds(burstAnimLength);
             burstAnim.SetActive(false);
-            _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Destroy);
+            _boardAnimator.OnAnimateGemComplete(_gem, AnimationType.DestroyGems);
             ReturnToPool();
         }
 

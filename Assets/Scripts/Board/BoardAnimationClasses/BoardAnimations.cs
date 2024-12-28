@@ -9,14 +9,14 @@ namespace Match3Test.Board.BoardAnimationClasses
         private BoardAnimationDestroyGem _animationDestroyGem;
         private BoardAnimationShakeGem _animationShakeGem;
 
-        public BoardAnimation GetAnimation(GemAnimationType gemAnimationType)
+        public BoardAnimation GetAnimation(AnimationType animationType)
         {
-            BoardAnimation result = gemAnimationType switch
+            BoardAnimation result = animationType switch
             {
-                GemAnimationType.Move => _moveGemAnimation ??= new BoardAnimationMoveGem(),
-                GemAnimationType.Destroy => _animationDestroyGem ??= new BoardAnimationDestroyGem(),
-                GemAnimationType.Shake => _animationShakeGem ??= new BoardAnimationShakeGem(),
-                _ => throw new Exception($"Unknown animation type {gemAnimationType}")
+                AnimationType.MoveGems => _moveGemAnimation ??= new BoardAnimationMoveGem(),
+                AnimationType.DestroyGems => _animationDestroyGem ??= new BoardAnimationDestroyGem(),
+                AnimationType.ShakeGems => _animationShakeGem ??= new BoardAnimationShakeGem(),
+                _ => throw new Exception($"Unknown animation type {animationType}")
             };
 
             SceneDiContainer.Container.Inject(result);

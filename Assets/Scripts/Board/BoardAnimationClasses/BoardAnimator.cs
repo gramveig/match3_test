@@ -11,63 +11,63 @@ namespace Match3Test.Board.BoardAnimationClasses
     {
         private BoardAnimations _boardAnimations = new();
 
-        public void AddGemToAnimation(Gem gem, GemAnimationType gemAnimationType)
+        public void AddGemToAnimation(Gem gem, AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             boardAnimation.AddGemToAnimation(gem);
         }
 
-        public void StartNewAnimationSequence(GemAnimationType gemAnimationType)
+        public void StartNewAnimationSequence(AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             boardAnimation.StartNewAnimationSequence();
         }
 
-        public void StartNewAnimationSequence(List<List<Gem>> gemsSequence,  GemAnimationType gemAnimationType)
+        public void StartNewAnimationSequence(List<List<Gem>> gemsSequence,  AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             boardAnimation.StartNewAnimationSequence(gemsSequence);
         }
 
-        public List<List<Gem>> GetAnimationSequence(GemAnimationType gemAnimationType)
+        public List<List<Gem>> GetAnimationSequence(AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             return boardAnimation.GetSequence();
         }
 
-        public void AddGemToAnimationSequence(Gem gem, int idx, GemAnimationType gemAnimationType)
+        public void AddGemToAnimationSequence(Gem gem, int idx, AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             boardAnimation.AddGemToAnimationSequence(gem, idx);
         }
         
-        public void AnimateGemsInAnimation(Action callback, GemAnimationType gemAnimationType)
+        public void AnimateGemsInAnimation(Action callback, AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             if (boardAnimation.IsAnimations)
                 boardAnimation.AnimateGems(callback);
             else
                 callback?.Invoke();
         }
 
-        public void AnimateGemsInSequence(Action callback, GemAnimationType gemAnimationType)
+        public void AnimateGemsInSequence(Action callback, AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             if (boardAnimation.IsAnimations)
                 boardAnimation.AnimateGemsInSequence(callback);
             else
                 callback?.Invoke();
         }
 
-        public void OnAnimateGemComplete(Gem gem, GemAnimationType gemAnimationType)
+        public void OnAnimateGemComplete(Gem gem, AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             boardAnimation.OnGemAnimationEnd(gem);
         }
 
-        public bool IsGemsInAnimation(GemAnimationType gemAnimationType)
+        public bool IsGemsInAnimation(AnimationType animationType)
         {
-            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(gemAnimationType);
+            BoardAnimation boardAnimation = _boardAnimations.GetAnimation(animationType);
             return boardAnimation.IsAnimations;
         }
     }
