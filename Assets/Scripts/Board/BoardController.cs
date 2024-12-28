@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Game;
+using Match3Test.Game.Settings;
 using Match3Test.Utility;
 using Match3Test.Views.Gems;
 using UnityEngine;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Match3Test.Board
@@ -18,7 +20,6 @@ namespace Match3Test.Board
         [SerializeField] private Transform gemsContainer;
         [SerializeField] private Transform bgTilesContainer;
 
-        public static BoardController Instance;
         public BoardSaveProvider BoardSaveProvider { get; private set; }
         public BoardSaveModel Board { get; private set; }
         public int BoardWidth => boardWidth;
@@ -29,6 +30,7 @@ namespace Match3Test.Board
         public event Action OnShakeGemsCompleteEvent;
 
         private GameController _gameController;
+        private GameSettings _gameSettings;
         private HorizontalMatchDetector _horizontalMatchDetector;
         private VerticalMatchDetector _verticalMatchDetector;
         private GemView[] _randomizedGemPrefabs;
@@ -45,12 +47,16 @@ namespace Match3Test.Board
         private class MoveSequence
         {
             private BoardController _boardController;
+            private GameController _gameController;
+            private GameSettings _gameSettings;
             private List<List<Gem>> sequence = new();
             public int Count;
 
-            public MoveSequence(BoardController boardController)
+            public MoveSequence(BoardController boardController, GameController gameController, GameSettings gameSettings)
             {
                 _boardController = boardController;
+                _gameController = gameController;
+                _gameSettings = gameSettings;
             }
 
             private void AddIndex(int idx)
@@ -106,7 +112,7 @@ namespace Match3Test.Board
 
             private IEnumerator SeqEnumerator()
             {
-                float delayStep = GameController.Instance.GameSettings.DelayStep;
+                float delayStep = _gameSettings.DelayStep;
                 int maxJ = GetMaxNestedListCount();
                 int gemsCount = GetGemsCount();
                 _boardController._movingGemsCounter += gemsCount;
@@ -132,7 +138,7 @@ namespace Match3Test.Board
 
             private IEnumerator ShakeSeqEnumerator()
             {
-                float delayStep = GameController.Instance.GameSettings.DelayStep;
+                float delayStep = _gameSettings.DelayStep;
                 int maxJ = GetMaxNestedListCount();
                 int gemsCount = GetGemsCount();
                 _boardController._shakedGemsCounter += gemsCount;
@@ -152,20 +158,21 @@ namespace Match3Test.Board
             }
         }
 
-        private void Awake()
+        [Inject]
+        public void Construct(GameController gameController, GameSettings gameSettings)
         {
-            Instance = this;
+            _gameController = gameController;
+            _gameSettings = gameSettings;
         }
 
         private void Start()
         {
-            _gameController = GameController.Instance;
-            _gameController.GameSettings.IniPrefabPool();
+            _gameSettings.IniPrefabPool();
             BoardSaveProvider = new BoardSaveProvider(boardWidth, boardHeight);
             Board = BoardSaveProvider.Read();
             _horizontalMatchDetector = new HorizontalMatchDetector(this);
             _verticalMatchDetector = new VerticalMatchDetector(this);
-            _moveSequence = new MoveSequence(this);
+            _moveSequence = new MoveSequence(this, _gameController, _gameSettings);
             InitRandomBoard();
         }
 
@@ -250,7 +257,7 @@ namespace Match3Test.Board
 
         private void TrySetGem(int x, int y)
         {
-            GemView gemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
+            GemView gemPrefab = _gameSettings.GetRandomRegularGemPrefab();
             Gem gem = new Gem(gemPrefab, x, y);
             Board[x, y] = gem;
             if (!(_horizontalMatchDetector.IsMatchesInLine(y) || _verticalMatchDetector.IsMatchesInLine(x)))
@@ -265,7 +272,7 @@ namespace Match3Test.Board
         private void TrySetDifferentGems(int x, int y)
         {
             if (_randomizedGemPrefabs == null)
-                _randomizedGemPrefabs = _gameController.GameSettings.GetRandomizedGemPrefabs();
+                _randomizedGemPrefabs = _gameSettings.GetRandomizedGemPrefabs();
             else
                 ArrayHelper.ShuffleArray(_randomizedGemPrefabs);
 
@@ -281,7 +288,7 @@ namespace Match3Test.Board
             }
 
             Debug.LogWarning($"Unable to find non-matching gem for position {x}, {y}");
-            GemView randomGemPrefab = _gameController.GameSettings.GetRandomRegularGemPrefab();
+            GemView randomGemPrefab = _gameSettings.GetRandomRegularGemPrefab();
             Gem randomGem = new Gem(randomGemPrefab, x, y);
             Board[x, y] = randomGem;
             InstantiateGem(randomGem);
@@ -297,7 +304,7 @@ namespace Match3Test.Board
 
         private void InstantiateBgTile(Vector2Int pos)
         {
-            Instantiate(_gameController.GameSettings.BgTilePrefab, (Vector2)pos, Quaternion.identity,
+            Instantiate(_gameSettings.BgTilePrefab, (Vector2)pos, Quaternion.identity,
                 bgTilesContainer);
         }
 
@@ -422,7 +429,7 @@ namespace Match3Test.Board
             {
                 if (match.IsNewBomb(_swipedGem, _otherGem, out Vector2Int bombPos))
                 {
-                    GemView bombPrefab = _gameController.GameSettings.GetBombPrefabOfColor(match.MatchColor);
+                    GemView bombPrefab = _gameSettings.GetBombPrefabOfColor(match.MatchColor);
                     Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
                     _bombs.Add(bomb);
                 }
@@ -493,7 +500,7 @@ namespace Match3Test.Board
         private IEnumerator WaitAndExplodeBombs()
         {
             Debug.Log("Waiting to explode bombs...");
-            yield return new WaitForSeconds(_gameController.GameSettings.BombExplosionDelay);
+            yield return new WaitForSeconds(_gameSettings.BombExplosionDelay);
 
             bool isExplodingGems = false;
             foreach (Match match in _matches)
@@ -545,7 +552,7 @@ namespace Match3Test.Board
         private IEnumerator WaitAndDestroyBombs()
         {
             Debug.Log("Waiting to destroy the exploded bombs...");
-            yield return new WaitForSeconds(_gameController.GameSettings.BombDestructionDelay);
+            yield return new WaitForSeconds(_gameSettings.BombDestructionDelay);
             
             foreach (Match match in _matches)
             {
@@ -622,7 +629,7 @@ namespace Match3Test.Board
 
             Debug.Log("Refilling the board");
             _moveSequence.Clear();
-            float dropHeight = _gameController.GameSettings.GemDropHeight;
+            float dropHeight = _gameSettings.GemDropHeight;
             for (int x = 0; x < boardWidth; x++)
             {
                 for (int y = 0; y < boardHeight; y++)

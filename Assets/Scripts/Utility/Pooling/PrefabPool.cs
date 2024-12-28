@@ -1,4 +1,5 @@
 using System;
+using Match3Test.Untility;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -85,9 +86,11 @@ namespace Match3Test.Utility.Pooling
         {
             T objectInstance;
             if (_detachInstances)
-                objectInstance = Object.Instantiate(_prefab);
+                //using DiContainer here, as instantiated prefabs may need to be injected
+                objectInstance = SceneDiContainer.Container.InstantiatePrefabForComponent<T>(_prefab);
             else
-                objectInstance = Object.Instantiate(_prefab, _poolObjectsContainer);
+                objectInstance =
+                    SceneDiContainer.Container.InstantiatePrefabForComponent<T>(_prefab, _poolObjectsContainer);
 
             //prefab pool is set in prefab but not in prefab instance,
             //thus we have to copy the pool reference to instance

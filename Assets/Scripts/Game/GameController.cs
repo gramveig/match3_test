@@ -16,20 +16,11 @@ namespace Match3Test.Game
     
     public class GameController : MonoBehaviour
     {
-        [SerializeField] private GameSettings gameSettings;
-
-        public static GameController Instance;
-        public GameSettings GameSettings => gameSettings;
         public GameState GameState { get; set; }
 
         public event Action<int> OnScoreChanged;
 
         private int _score;
-
-        private void Awake()
-        {
-            Instance = this;
-        }
 
         private void Start()
         {

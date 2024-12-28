@@ -3,9 +3,11 @@ using DG.Tweening;
 using Match3Test.Board;
 using Match3Test.Board.Model;
 using Match3Test.Game;
+using Match3Test.Game.Settings;
 using Match3Test.Utility;
 using UnityEngine;
 using Match3Test.Utility.Pooling;
+using Zenject;
 
 namespace Match3Test.Views.Gems
 {
@@ -26,6 +28,7 @@ namespace Match3Test.Views.Gems
 
         private GameController _gameController;
         private BoardController _boardController;
+        private GameSettings _gameSettings;
         private Gem _gem;
         private bool _mousePressed;
         private Vector2 _firstTouchPosition;
@@ -39,12 +42,18 @@ namespace Match3Test.Views.Gems
         private readonly PrefabPool<GemView> _prefabPool = new();
         private ParticleSystem _particleSystem;
 
+        [Inject]
+        public void Construct(GameController gameController, BoardController boardController, GameSettings gameSettings)
+        {
+            _gameController = gameController;
+            _boardController = boardController;
+            _gameSettings = gameSettings;
+        }
+
         public void Init(Gem gem)
         {
             _gem = gem;
-            _gameController = GameController.Instance;
-            _boardController = BoardController.Instance;
-            _moveSpeed = _gameController.GameSettings.GemSpeed;
+            _moveSpeed = _gameSettings.GemSpeed;
             _mousePressed = false;
             _isMoving = false;
             spriteRenderer.enabled = true;
@@ -69,8 +78,8 @@ namespace Match3Test.Views.Gems
 
         public void Shake()
         {
-            float shakeTime = GameController.Instance.GameSettings.ShakeTime;
-            float jumpPower = GameController.Instance.GameSettings.JumpPower;
+            float shakeTime = _gameSettings.ShakeTime;
+            float jumpPower = _gameSettings.JumpPower;
 
             _startPosition = transform.position;
             transform.DOJump(_startPosition, jumpPower, 1, shakeTime)
