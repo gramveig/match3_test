@@ -384,12 +384,14 @@ namespace Match3Test.Board
             int y = gem.Pos.y;
             DestroyGemAroundBomb(_board.GetGem(x, y + 2));
             DestroyGemAroundBomb(_board.GetGem(x - 1 , y + 1));
+            DestroyGemAroundBomb(_board.GetGem(x, y + 1));
             DestroyGemAroundBomb(_board.GetGem(x + 1 , y + 1));
             DestroyGemAroundBomb(_board.GetGem(x - 2, y));
             DestroyGemAroundBomb(_board.GetGem(x - 1, y));
             DestroyGemAroundBomb(_board.GetGem(x + 1, y));
             DestroyGemAroundBomb(_board.GetGem(x + 2, y));
             DestroyGemAroundBomb(_board.GetGem(x - 1 , y - 1));
+            DestroyGemAroundBomb(_board.GetGem(x, y - 1));
             DestroyGemAroundBomb(_board.GetGem(x + 1 , y - 1));
             DestroyGemAroundBomb(_board.GetGem(x, y - 2));
         }
