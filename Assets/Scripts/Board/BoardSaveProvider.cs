@@ -5,22 +5,16 @@ namespace Match3Test.Board
 {
     public class BoardSaveProvider : BaseSaveProvider<BoardSaveModel>
     {
-        private int _boardWidth;
-        private int _boardHeight;
-        
-        public BoardSaveProvider(int boardWidth, int boardHeight) : base()
-        {
-            _boardWidth = boardWidth;
-            _boardHeight = boardHeight;
-        }
+        private const int DefaultBoardWidth = 7;
+        private const int DefaultBoardHeight = 7;
         
         protected override string Key => "Board";
 
         protected override BoardSaveModel DefaultSave() => new BoardSaveModel
         {
-            Width = _boardWidth,
-            Height = _boardHeight,
-            Board = new Gem[_boardWidth, _boardHeight]
+            Width = DefaultBoardWidth,
+            Height = DefaultBoardHeight,
+            Board = new Gem[DefaultBoardWidth, DefaultBoardHeight]
         };
     }
 }

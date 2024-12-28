@@ -16,5 +16,25 @@ namespace Match3Test.Board.Model
             get => Board[x, y];
             set => Board[x, y] = value;
         }
+
+        public Gem GetGem(int x, int y)
+        {
+            if (x < 0 || x >=  Width || y < 0 || y >= Height) return null;
+            
+            return Board[x, y];
+        }
+
+        public void SetGemAtNewPos(Gem gem)
+        {
+            int x = gem.Pos.x;
+            int y = gem.Pos.y;
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
+            {
+                Debug.LogError($"Position {x}, {y} is out of the board's dimensions");
+                return;
+            }
+
+            Board[x, y] = gem;
+        }
     }
 }

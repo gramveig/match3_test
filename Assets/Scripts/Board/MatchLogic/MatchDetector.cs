@@ -7,26 +7,22 @@ namespace Match3Test.Board.MatchLogic
 {
     public abstract class MatchDetector
     {
-        protected BoardController _boardController;
-        protected int _boardWidth;
-        protected int _boardHeight;
+        protected BoardSaveModel _boardModel;
 
-        public MatchDetector(BoardController boardController)
+        public MatchDetector(BoardSaveModel boardModel)
         {
-            _boardController = boardController;
-            _boardWidth = boardController.BoardWidth;
-            _boardHeight = boardController.BoardHeight;
+            _boardModel = boardModel;
         }
 
-        public abstract bool IsMatchesInLine(int lineIndex, ref List<Match> matches);
+        public abstract bool IsMatchesInLine(int lineIndex, ref Matches matches);
 
         public bool IsMatchesInLine(int lineIndex)
         {
-            List<Match> matches = null;
+            Matches matches = null;
             return IsMatchesInLine(lineIndex, ref matches);
         }
 
-        public abstract bool IsMatches(ref List<Match> matches);
+        public abstract bool IsMatches(ref Matches matches);
 
         protected bool IsMatch(int startX, int startY, int incX, int incY, Gem startGem, out List<Gem> matchingGems)
         {
@@ -36,14 +32,16 @@ namespace Match3Test.Board.MatchLogic
 
             int tilesCounter = 0;
             bool isBombMatch = false;
+            int boardWidth = _boardModel.Width;
+            int boarHeight = _boardModel.Height;
             GemColor bombMatchColor = GemColor.Any;
             for (int x = startX, y = startY;
-                 incX != 0 && (incX > 0 && x < _boardWidth || incX < 0 && x >= 0) ||
-                 incY != 0 && (incY > 0 && y < _boardHeight || incY < 0 && y >= 0);
+                 incX != 0 && (incX > 0 && x < boardWidth || incX < 0 && x >= 0) ||
+                 incY != 0 && (incY > 0 && y < boarHeight || incY < 0 && y >= 0);
                  x += incX, y += incY
             )
             {
-                Gem gem = _boardController.GetGem(x, y);
+                Gem gem = _boardModel.GetGem(x, y);
                 if (gem == null) break;
 
                 if (   gem.GemClass == GemClass.Special

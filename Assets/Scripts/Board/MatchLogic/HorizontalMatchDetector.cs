@@ -5,18 +5,19 @@ namespace Match3Test.Board.MatchLogic
 {
     public class HorizontalMatchDetector : MatchDetector
     {
-        public HorizontalMatchDetector(BoardController boardController) : base(boardController)
+        public HorizontalMatchDetector(BoardSaveModel boardSaveModel) : base(boardSaveModel)
         {
         }
 
-        public override bool IsMatchesInLine(int lineIdx, ref List<Match> matches)
+        public override bool IsMatchesInLine(int lineIdx, ref Matches matches)
         {
             int y = lineIdx;
 
             bool isMatches = false;
-            for (var x = 0; x < _boardWidth;)
+            int boardWidth = _boardModel.Width;
+            for (var x = 0; x < boardWidth;)
             {
-                Gem startGem = _boardController.GetGem(x, y);
+                Gem startGem = _boardModel.GetGem(x, y);
                 if (startGem == null)
                 {
                     x += 1;
@@ -36,7 +37,7 @@ namespace Match3Test.Board.MatchLogic
                         MatchColor = startGem.GemColor
                     };
 
-                    matches.Add(match);
+                    matches.AddMatch(match);
                     x += matchingGems.Count;
                 }
                 else
@@ -46,10 +47,11 @@ namespace Match3Test.Board.MatchLogic
             return isMatches;
         }
 
-        public override bool IsMatches(ref List<Match> matches)
+        public override bool IsMatches(ref Matches matches)
         {
             bool isMatches = false;
-            for (int y = 0; y < _boardHeight; y++)
+            int boardHeight = _boardModel.Height;
+            for (int y = 0; y < boardHeight; y++)
             {
                 bool isMatchesInRow = IsMatchesInLine(y, ref matches);
                 if (isMatchesInRow) isMatches = true;

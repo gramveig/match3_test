@@ -222,6 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameController: {fileID: 1301540644}
   boardController: {fileID: 1879498211}
+  boardAnimator: {fileID: 1879498212}
   gameSettings: {fileID: 11400000, guid: 5f46b7c67eaba3a42b88f48279a972f0, type: 2}
 --- !u!114 &447996247
 MonoBehaviour:
@@ -1101,6 +1102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1879498210}
   - component: {fileID: 1879498211}
+  - component: {fileID: 1879498212}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -1142,3 +1144,15 @@ MonoBehaviour:
   boardHeight: 7
   gemsContainer: {fileID: 1740955909}
   bgTilesContainer: {fileID: 1852884624}
+--- !u!114 &1879498212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879498208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2900d9d67e1431abd0caa2a60a8126d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

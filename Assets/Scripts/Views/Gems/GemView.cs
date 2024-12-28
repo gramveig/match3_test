@@ -1,6 +1,7 @@
 using System.Collections;
 using DG.Tweening;
 using Match3Test.Board;
+using Match3Test.Board.BoardAnimationClasses;
 using Match3Test.Board.Model;
 using Match3Test.Game;
 using Match3Test.Game.Settings;
@@ -28,6 +29,7 @@ namespace Match3Test.Views.Gems
 
         private GameController _gameController;
         private BoardController _boardController;
+        private BoardAnimator _boardAnimator;
         private GameSettings _gameSettings;
         private Gem _gem;
         private bool _mousePressed;
@@ -43,12 +45,36 @@ namespace Match3Test.Views.Gems
         private ParticleSystem _particleSystem;
 
         [Inject]
-        public void Construct(GameController gameController, BoardController boardController, GameSettings gameSettings)
+        public void Construct(GameController gameController, BoardController boardController, GameSettings gameSettings,
+            BoardAnimator boardAnimator)
         {
             _gameController = gameController;
             _boardController = boardController;
+            _boardAnimator = boardAnimator; 
             _gameSettings = gameSettings;
         }
+
+        //event functions
+
+        private void Update()
+        {
+            if (_mousePressed)
+                DetectMouseButtonUp();
+
+            if (_isMoving)
+                MoveGradually();
+        }
+
+        private void OnMouseDown()
+        {
+            if (_gameController.GameState == GameState.WaitForMove)
+            {
+                _firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                _mousePressed = true;
+            }
+        }
+
+        //public
 
         public void Init(Gem gem)
         {
@@ -83,26 +109,10 @@ namespace Match3Test.Views.Gems
 
             _startPosition = transform.position;
             transform.DOJump(_startPosition, jumpPower, 1, shakeTime)
-                .onComplete = _boardController.OnShakeGemsComplete;
+                .onComplete = () => { _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Shake); };
         }
 
-        private void Update()
-        {
-            if (_mousePressed)
-                DetectMouseButtonUp();
-
-            if (_isMoving)
-                MoveGradually();
-        }
-
-        private void OnMouseDown()
-        {
-            if (_gameController.GameState == GameState.WaitForMove)
-            {
-                _firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                _mousePressed = true;
-            }
-        }
+        //private
 
         private void DetectMouseButtonUp()
         {
@@ -142,7 +152,7 @@ namespace Match3Test.Views.Gems
             {
                 transform.position = _endPosition;
                 _isMoving = false;
-                _boardController.OnMoveGemComplete();
+                _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Move);
             }
         }
 
@@ -152,10 +162,12 @@ namespace Match3Test.Views.Gems
             burstAnim.SetActive(true);
             _particleSystem.Play();
             yield return new WaitForSeconds(burstAnimLength);
-            _boardController.OnBurstGemComplete();
             burstAnim.SetActive(false);
+            _boardAnimator.OnAnimateGemComplete(_gem, GemAnimationType.Destroy);
             ReturnToPool();
         }
+
+        //pooling
 
         public void InitPool(int prefetchCount = 0, Transform container = null)
         {
