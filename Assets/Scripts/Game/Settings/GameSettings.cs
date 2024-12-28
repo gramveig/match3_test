@@ -20,6 +20,7 @@ namespace Match3Test.Game.Settings
         [SerializeField] private float scoreSpeed;
         [SerializeField] private int commonGemPrefetchCount = 20;
         [SerializeField] private int bombPrefetchCount = 10;
+        [SerializeField] private int emptyPrefabPrefetchCount = 20;
         [SerializeField] private float bombExplosionDelay = 0.2f;
         [SerializeField] private float bombDestructionDelay = 0.2f;
         [SerializeField] private float delayStep = 0.05f;
@@ -80,6 +81,8 @@ namespace Match3Test.Game.Settings
 
                 pooledPrefab.InitPool(bombPrefetchCount);
             }
+
+            emptyPrefab.InitPool(emptyPrefabPrefetchCount);
         }
 
         public GemView GetBombPrefab(GemColor gemColor)
