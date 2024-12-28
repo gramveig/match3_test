@@ -77,7 +77,7 @@ namespace Match3Test.Board
             Gem otherGem = GetOtherGem(gem, swipeDirection);
             if (otherGem == null) return;
 
-            SwipeGems(gem, otherGem, swipeDirection, CheckForMatches);
+            SwipeGems(gem, otherGem, swipeDirection, CheckMatchesAfterSwipe);
             //save the swipe data to find bombs and in case we need to swipe back
             _swipedGem = gem;
             _otherGem = otherGem;
@@ -250,35 +250,42 @@ namespace Match3Test.Board
 
             return new Vector2Int(x, y);
         }
-        
-        private void CheckForMatches()
+
+        private void CheckMatchesAfterSwipe()
+        {
+            bool isMatches = CheckForMatches();
+            if (!isMatches) SwipeBack(OnSwipeBackEnd);
+        }
+
+        private bool CheckForMatches()
         {
             _matches.Clear();
             if (AngleHelper.IsHorizontal(_swipeDirection))
             {
-                bool matches1 = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
-                bool matches2 = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
-                bool matches3 = _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches);
-                if (matches1 || matches2 || matches3)
+                bool isHorizontalMatches = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
+                bool isVerticalMatches1 = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
+                bool isVerticalMatches2 = _verticalMatchDetector.IsMatchesInLine(_otherGem.Pos.x, ref _matches);
+                if (isHorizontalMatches || isVerticalMatches1 || isVerticalMatches2)
                 {
+                    _matches.GetBombs(_swipedGem, _otherGem);
                     ProcessMatches(_matches);
-                    return;
+                    return true;
                 }
             }
             else
             {
-                bool matches1 = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
-                bool matches2 = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
-                bool matches3 = _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches);
-                if (matches1 || matches2 || matches3)
+                bool isVerticalMatches = _verticalMatchDetector.IsMatchesInLine(_swipedGem.Pos.x, ref _matches);
+                bool isHorizontalMatches1 = _horizontalMatchDetector.IsMatchesInLine(_swipedGem.Pos.y, ref _matches);
+                bool isHorizontalMatches2 = _horizontalMatchDetector.IsMatchesInLine(_otherGem.Pos.y, ref _matches);
+                if (isVerticalMatches || isHorizontalMatches1 || isHorizontalMatches2)
                 {
+                    _matches.GetBombs(_swipedGem, _otherGem);
                     ProcessMatches(_matches);
-                    return;
+                    return true;
                 }
             }
 
-            //in case no matches found - swipe back
-            SwipeBack(OnSwipeBackEnd);
+            return false;
         }
 
         private void SwipeGems(Gem gem, Gem otherGem, Direction swipeDirection, Action callback)
@@ -319,8 +326,6 @@ namespace Match3Test.Board
         private void ProcessMatches(Matches matches)
         {
             Debug.Log($"Matches detected: {matches.MatchesCount}");
-
-            matches.GetBombs(_swipedGem, _otherGem);
             if (matches.IsNonBombMatchingGems())
                 DestroyMatchingNonBombGems(matches);
             else
@@ -476,7 +481,8 @@ namespace Match3Test.Board
                 AnimationType.ShakeGems);
             _boardAnimator.AnimateGemsInSequence(RefillBoard, AnimationType.ShakeGems);
         }
-        
+
+        private int _debugCount = 0;
         private void RefillBoard()
         {
             _boardAnimator.StartNewAnimationSequence(AnimationType.MoveGems);
@@ -489,13 +495,18 @@ namespace Match3Test.Board
                     Gem gem = _board[x, y];
                     if (gem == null)
                     {
-                        //TrySetGem(x, y);
-                        SetGemOfSpecifiedColor(x, y, GemColor.Yellow);
+                        if (_debugCount == 0)
+                            SetGemOfSpecifiedColor(x, y, GemColor.Yellow);
+                        else
+                            TrySetGem(x, y);
+
                         gem = _board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
                     }
                 }
+
+                _debugCount++;
             }
 
             if (_boardAnimator.IsGemsInAnimation(AnimationType.MoveGems))
@@ -505,7 +516,7 @@ namespace Match3Test.Board
             else
             {
                 Debug.LogWarning("No gems for refill found");
-                FindMatchesAfterRefill();
+                CheckMatchesAfterRefill();
             }
         }
 
@@ -514,17 +525,20 @@ namespace Match3Test.Board
             Debug.Log("Shake after refill");
             _boardAnimator.StartNewAnimationSequence(_boardAnimator.GetAnimationSequence(AnimationType.MoveGems),
                 AnimationType.ShakeGems);
-            _boardAnimator.AnimateGemsInSequence(FindMatchesAfterRefill, AnimationType.ShakeGems);
+            _boardAnimator.AnimateGemsInSequence(CheckMatchesAfterRefill, AnimationType.ShakeGems);
         }
 
-        private void FindMatchesAfterRefill()
+        private void CheckMatchesAfterRefill()
         {
             Debug.Log("Looking for matches after refill...");
             _matches.Clear();
-            if (_horizontalMatchDetector.IsMatches(ref _matches) || _verticalMatchDetector.IsMatches(ref _matches))
+            bool isHorizontalMatches = _horizontalMatchDetector.IsMatches(ref _matches);
+            bool isVerticalMatches = _verticalMatchDetector.IsMatches(ref _matches);
+            if (isHorizontalMatches || isVerticalMatches)
             {
                 Debug.Log("Matches count: " + _matches.MatchesCount);
-                DestroyMatchingNonBombGems(_matches);
+                _matches.GetAutoBombs();
+                ProcessMatches(_matches);
             }
             else
             {
