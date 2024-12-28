@@ -87,7 +87,25 @@ namespace Match3Test.Board
         [Button("Save Model To Text File")]
         public void SaveModelToTextFile()
         {
+            if (!Application.isPlaying)
+            {
+                Debug.LogError("Game must be running");
+                return;
+            }
+            
             _boardSaveProvider.SaveAsTextFile(_board);
+        }
+
+        [Button("Save Empty Model To Text File")]
+        public void SaveEmptyModelToTextFile()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogError("Game must be running");
+                return;
+            }
+
+            _boardSaveProvider.SaveEmptyBoardAsTextFile();
         }
 
         //private

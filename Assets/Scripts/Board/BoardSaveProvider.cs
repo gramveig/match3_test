@@ -50,6 +50,13 @@ namespace Match3Test.Board
             Debug.Log("File saved at: " + SavePath);
         }
 
+        public void SaveEmptyBoardAsTextFile()
+        {
+            string emptyBoardString = GetEmptyModelAsString();
+            File.WriteAllText(SavePath, emptyBoardString);
+            Debug.Log("File saved at: " + SavePath);
+        }
+
         public BoardSaveModel GetFromTextFile(TextAsset textFile)
         {
             string[] lines = textFile.text.Split('\n');
@@ -82,6 +89,12 @@ namespace Match3Test.Board
             }
 
             return board;
+        }
+
+        private string GetEmptyModelAsString()
+        {
+            var emptyBoard = DefaultSave();
+            return GetModelAsString(emptyBoard);
         }
 
         private string GetModelAsString(BoardSaveModel board)
