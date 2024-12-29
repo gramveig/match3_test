@@ -36,6 +36,7 @@ namespace Match3Test.Board
                     if (gem == null)
                     {
                         _boardController.TrySetGem(x, y);
+                        //_boardController.SetGemOfSpecifiedColor(x, y, GemColor.Red);
 
                         gem = board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);

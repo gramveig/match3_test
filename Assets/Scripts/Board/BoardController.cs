@@ -108,6 +108,14 @@ namespace Match3Test.Board
             TrySetDifferentGems(x, y);
         }
 
+        public void SetGemOfSpecifiedColor(int x, int y, GemColor gemColor) //debug
+        {
+            GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
+            Gem gem = new Gem(gemPrefab, x, y);
+            _board[x, y] = gem;
+            InstantiateGemView(gem);
+        }
+        
         [Button("Save Model To Text File")]
         public void SaveModelToTextFile()
         {
@@ -163,14 +171,6 @@ namespace Match3Test.Board
 
             _horizontalMatchDetector = new HorizontalMatchDetector(_board);
             _verticalMatchDetector = new VerticalMatchDetector(_board);
-        }
-
-        private void SetGemOfSpecifiedColor(int x, int y, GemColor gemColor) //debug
-        {
-            GemView gemPrefab = _gameSettings.GetRegularGemPrefab(gemColor);
-            Gem gem = new Gem(gemPrefab, x, y);
-            _board[x, y] = gem;
-            InstantiateGemView(gem);
         }
 
         private void TrySetDifferentGems(int x, int y)
