@@ -32,7 +32,7 @@ namespace Match3Test.Board.MatchLogic
 
         public int MatchesCount => GemMatches.Count;
 
-        //find bombs after the gems were manually swapped
+        //find bombs after the gems were manually swiped
         public void GetBombs(Gem swipedGem, Gem otherGem)
         {
             foreach (Match match in GemMatches)

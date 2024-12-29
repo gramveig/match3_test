@@ -22,11 +22,6 @@ namespace Match3Test.Board
             
         }
 
-        public virtual void Update()
-        {
-            
-        }
-
         public virtual void Finish()
         {
             

@@ -3,10 +3,10 @@ namespace Match3Test.Board
     public enum BoardStateId
     {
         None,
-        WaitForSwap,
-        Swap,
-        BackSwap,
-        CheckForMatchesAfterSwap,
+        WaitForSwipe,
+        Swipe,
+        SwipeBack,
+        CheckMatchesAfterSwipe,
         ProcessMatches,
         DestroyMatchingNonBombGems,
         ExplodeGemsAroundBombs,
