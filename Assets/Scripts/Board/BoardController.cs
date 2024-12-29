@@ -37,7 +37,7 @@ namespace Match3Test.Board
         public Matches Matches => _matches;
         public HorizontalMatchDetector HorizontalMatchDetector => _horizontalMatchDetector;
         public VerticalMatchDetector VerticalMatchDetector => _verticalMatchDetector;
-        public Gem[] Bombs;
+        public Gem[] Bombs { get; set; }
         public BoardSaveModel Board => _board;
         public List<Gem> RefillGems => _refillGems;
 
