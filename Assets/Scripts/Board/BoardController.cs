@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using Match3Test.Board.BoardAnimationClasses;
+using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
-using Match3Test.Game;
 using Match3Test.Game.Settings;
 using Match3Test.Utility;
 using Match3Test.Views.Gems;
@@ -32,6 +30,7 @@ namespace Match3Test.Board
         private Direction _swipeDirection;
         private readonly BoardStates _boardStates = new ();
         private BoardState _state;
+        private List<Gem> _refillGems = new ();
 
         public event Action<Gem, Direction> OnSwipe;
         public SwipeData SwipeData;
@@ -40,6 +39,7 @@ namespace Match3Test.Board
         public VerticalMatchDetector VerticalMatchDetector => _verticalMatchDetector;
         public Gem[] Bombs;
         public BoardSaveModel Board => _board;
+        public List<Gem> RefillGems => _refillGems;
 
         [Inject]
         public void Construct(GameSettings gameSettings, BoardSaveProvider boardSaveProvider)

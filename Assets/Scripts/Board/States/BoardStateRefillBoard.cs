@@ -28,6 +28,7 @@ namespace Match3Test.Board
             _boardAnimator.StartNewAnimationSequence(AnimationType.MoveGems);
             BoardSaveModel board = _boardController.Board;
             float dropHeight = _gameSettings.GemDropHeight;
+            _boardController.RefillGems.Clear();
             for (int x = 0; x < board.Width; x++)
             {
                 for (int y = 0; y < board.Height; y++)
@@ -41,6 +42,7 @@ namespace Match3Test.Board
                         gem = board[x, y];
                         gem.GemView.transform.position = new Vector2(gem.Pos.x, gem.Pos.y + dropHeight);
                         _boardAnimator.AddGemToAnimationSequence(gem, x, AnimationType.MoveGems);
+                        _boardController.RefillGems.Add(gem);
                     }
                 }
             }

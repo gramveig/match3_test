@@ -33,25 +33,11 @@ namespace Match3Test.Board.MatchLogic
         public int MatchesCount => GemMatches.Count;
 
         //find bombs after the gems were manually swiped
-        public void GetBombs(Gem swipedGem, Gem otherGem)
+        public void GetNewBombs(List<Gem> checkedGems)
         {
             foreach (Match match in GemMatches)
             {
-                if (match.IsNewBomb(swipedGem, otherGem, out Vector2Int bombPos))
-                {
-                    GemView bombPrefab = _gameSettings.GetBombPrefab(match.MatchColor);
-                    Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);
-                    AddBombIfNotPresent(bomb);
-                }
-            }
-        }
-
-        //find bombs that form automatically when the board is refilling
-        public void GetAutoBombs()
-        {
-            foreach (Match match in GemMatches)
-            {
-                if (match.IsNewBomb(out Vector2Int bombPos))
+                if (match.IsNewBomb(checkedGems, out Vector2Int bombPos))
                 {
                     GemView bombPrefab = _gameSettings.GetBombPrefab(match.MatchColor);
                     Gem bomb = new Gem(bombPrefab, bombPos.x, bombPos.y);

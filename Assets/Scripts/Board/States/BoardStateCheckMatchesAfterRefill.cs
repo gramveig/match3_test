@@ -22,7 +22,7 @@ namespace Match3Test.Board
             if (isHorizontalMatches || isVerticalMatches)
             {
                 Debug.Log("Matches count: " + matches.MatchesCount);
-                matches.GetAutoBombs();
+                matches.GetNewBombs(_boardController.RefillGems);
                 _boardController.SetState(BoardStateId.ProcessMatches);
             }
             else

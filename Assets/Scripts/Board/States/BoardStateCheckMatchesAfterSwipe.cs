@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Match3Test.Board.MatchLogic;
 using Match3Test.Board.Model;
 using Match3Test.Utility;
@@ -21,7 +22,7 @@ namespace Match3Test.Board
             bool isMatches = CheckForMatches();
             if (isMatches)
             {
-                _boardController.Matches.GetBombs(swipeData.SwipedGem, swipeData.OtherGem);
+                _boardController.Matches.GetNewBombs(new List<Gem> { swipeData.SwipedGem, swipeData.OtherGem });
                 _boardController.SetState(BoardStateId.ProcessMatches);
             }
             else
